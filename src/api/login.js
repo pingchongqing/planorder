@@ -2,20 +2,19 @@ import request from '@/utils/request'
 
 export function login(username, password) {
   return request({
-    url: '/user/login',
+    url: '/api/auth/login',
     method: 'post',
     data: {
-      username,
+      account: username,
       password
     }
   })
 }
 
-export function getInfo(token) {
+export function getInfo() {
   return request({
-    url: '/user/info',
-    method: 'get',
-    params: { token }
+    url: '/api/user/baseInfo',
+    method: 'get'
   })
 }
 

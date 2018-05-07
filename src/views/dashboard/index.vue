@@ -10,11 +10,22 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'dashboard',
+  data() {
+    return {
+      loading: false
+    }
+  },
   computed: {
     ...mapGetters([
       'name',
-      'roles'
+      'roles',
+      'menu'
     ])
+  },
+  created() {
+    this.$store.dispatch('GetMenu').then(() => {
+      console.log(this.menu)
+    })
   }
 }
 </script>
