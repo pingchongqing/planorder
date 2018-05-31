@@ -11,15 +11,29 @@ module.exports = {
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
     proxyTable: {
+      '/csj_login': {
+        // target: 'http://192.168.2.34:10011',
+        target: 'http://192.168.2.34:10011',
+        changeOrigin: true
+      },
       '/api': {
         target: 'http://192.168.2.34:10011',
+        // target: 'http://ztbtest.csjscm.com',
         changeOrigin: true,
+      },
+      '/planapi': {
+        target: 'http://192.168.2.34:8082',
+        // target: 'http://ztbtest.csjscm.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/planapi': '/'
+        }
       }
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
-    port: 9528, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+    host: '192.168.2.153', // can be overwritten by process.env.HOST
+    port: 9527, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: true,
     errorOverlay: true,
     notifyOnErrors: false,

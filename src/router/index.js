@@ -22,59 +22,55 @@ import Layout from '../views/layout/Layout'
   }
 **/
 export const constantRouterMap = [
-  { path: '/login', component: () => import('@/views/login/index'), hidden: true },
+  // { path: '/login', component: () => import('@/views/login/index'), hidden: true },
+  { path: '/login', redirect: '/csj_login', hidden: true },
   { path: '/404', component: () => import('@/views/404'), hidden: true },
   { path: '/401', component: () => import('@/views/401'), hidden: true },
+  { path: '/payresult', component: () => import('@/views/payresult'), hidden: true },
   {
-    path: '/',
+    path: '',
     component: Layout,
-    redirect: '/dashboard',
-    name: 'Dashboard',
+    redirect: 'dashboard',
     hidden: true,
     children: [{
-      path: 'dashboard',
+      name: 'dashboard',
+      path: '/dashboard',
+      meta: { title: '主页', noCache: true },
       component: () => import('@/views/dashboard/index')
     }]
   },
-
   {
-    path: '/example',
+    path: '/planorder',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
+    redirect: '/planorder/newplanorder',
+    name: 'planorder',
+    alwaysShow: true,
+    meta: { title: '计划单', icon: 'tree' }, // you can set roles in root nav
     children: [
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'newplanorder',
+        component: _import('planorder/newplanorder'),
+        name: 'newplanorder',
+        meta: {
+          title: '新建计划单',
+          icon: 'form'
+        }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
-    ]
-  },
-
-  {
-    path: '/form',
-    component: Layout,
-    children: [
-      {
-        path: 'index',
-        name: 'Form',
-        component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        path: 'planorderlist',
+        component: _import('planorder/planorderlist'),
+        name: 'planorderlist',
+        meta: {
+          title: '计划单查询',
+          icon: 'tree'
+        }
       }
     ]
   }
 ]
 
 export default new Router({
-  // mode: 'history', //后端支持可开
+  mode: 'history', // 后端支持可开
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
@@ -85,7 +81,8 @@ export const asyncRouterMap = [
     component: Layout,
     redirect: '/etp/addetp',
     name: 'etp',
-    meta: { title: '招投标', roles: [7], icon: 'table' }, // you can set roles in root nav
+    alwaysShow: true,
+    meta: { title: '招投标', roles: ['701', '710'], icon: 'table' }, // you can set roles in root nav
     children: [
       {
         path: 'addetp',
@@ -94,27 +91,128 @@ export const asyncRouterMap = [
         meta: {
           title: '我要发标',
           icon: 'form',
-          roles: [7]
+          roles: ['701']
         }
       },
       {
         path: 'myetp',
-        component: _import('enterprice/index'),
+        component: _import('enterprice/myetp'),
         name: 'myetp',
         meta: {
           title: '我的招标',
           icon: 'busyness',
-          roles: [7]
+          roles: ['701']
         }
       },
       {
         path: 'bail',
-        component: _import('enterprice/index'),
+        component: _import('bail/index'),
         name: 'bail',
         meta: {
           title: '保证金管理',
           icon: 'money',
-          roles: [7]
+          roles: ['701']
+        }
+      },
+      {
+        path: 'etpdetail/:id',
+        component: _import('enterprice/etpdetail'),
+        name: 'etpdetail',
+        hidden: true,
+        meta: {
+          title: '招标详情',
+          roles: ['701']
+        }
+      },
+      {
+        path: 'tenderdetail/:id',
+        component: _import('enterprice/tenderdetail'),
+        name: 'tenderdetail',
+        hidden: true,
+        meta: {
+          title: '明细中标',
+          roles: ['701']
+        }
+      },
+      {
+        path: 'etpdetailsale/:id',
+        component: _import('enterprice/etpdetail'),
+        name: 'etpdetailsale',
+        hidden: true,
+        meta: {
+          title: '招标详情',
+          roles: ['710']
+        }
+      },
+      {
+        path: 'bidlist/:tpnumber',
+        component: _import('enterprice/bidlist'),
+        name: 'bidlist',
+        hidden: true,
+        meta: {
+          title: '总价中标',
+          roles: ['701']
+        }
+      },
+      {
+        path: 'etpcenter',
+        component: _import('enterprice/etpcenter'),
+        name: 'etpcenter',
+        meta: {
+          title: '招标公告中心',
+          roles: ['710'],
+          icon: 'example'
+        }
+      },
+      {
+        path: 'bidrecord',
+        component: _import('bail/bidrecord'),
+        name: 'bidrecord',
+        meta: {
+          title: '竞标记录',
+          roles: ['710'],
+          icon: 'tree'
+        }
+      },
+      {
+        path: 'baillist',
+        component: _import('bail/baillist'),
+        name: 'baillist',
+        meta: {
+          title: '已交保证金',
+          roles: ['710'],
+          icon: 'money'
+        }
+      },
+      {
+        path: 'quoted/:id',
+        component: _import('enterprice/quoted'),
+        name: 'quoted',
+        hidden: true,
+        meta: {
+          title: '竞标报价',
+          roles: ['710'],
+          icon: 'example'
+        }
+      },
+      {
+        path: 'biddetail/:id',
+        component: _import('enterprice/biddetail'),
+        name: 'biddetail',
+        hidden: true,
+        meta: {
+          title: '竞标详情',
+          roles: ['710', '701']
+        }
+      },
+      {
+        path: 'paybail/:id',
+        component: _import('enterprice/paybail'),
+        name: 'paybail',
+        hidden: true,
+        meta: {
+          title: '支付竞标保证金',
+          roles: ['710']
         }
       }
     ]

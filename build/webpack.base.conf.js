@@ -31,6 +31,10 @@ module.exports = {
       ? config.build.assetsPublicPath
       : config.dev.assetsPublicPath
   },
+  devServer: {
+    disableHostCheck: true,
+    historyApiFallback: true,
+  },
   resolve: {
     extensions: ['.js', '.vue', '.json'],
     alias: {

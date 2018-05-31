@@ -20,7 +20,21 @@ export function getInfo() {
 
 export function logout() {
   return request({
-    url: '/user/logout',
+    url: '/api/auth/logout',
     method: 'post'
+  })
+}
+
+export function csj_logout() {
+  return request({
+    url: '/logout',
+    method: 'get'
+  })
+}
+
+export function getcsjInfo() {
+  return request({
+    url: '/apii/home',
+    method: 'get'
   })
 }

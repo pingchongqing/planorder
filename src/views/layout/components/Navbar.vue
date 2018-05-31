@@ -10,11 +10,11 @@
       <el-dropdown-menu class="user-dropdown" slot="dropdown">
         <router-link class="inlineBlock" to="/">
           <el-dropdown-item>
-            Home
+            主页
           </el-dropdown-item>
         </router-link>
         <el-dropdown-item divided>
-          <span @click="logout" style="display:block;">LogOut</span>
+          <span @click="logout" style="display:block;">退出登录</span>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -41,9 +41,16 @@ export default {
     toggleSideBar() {
       this.$store.dispatch('ToggleSideBar')
     },
-    logout() {
-      this.$store.dispatch('LogOut').then(() => {
-        location.reload() // 为了重新实例化vue-router对象 避免bug
+    async logout() {
+      this.$confirm('确定退出吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(action => {
+        if (action === 'confirm') {
+          this.$store.dispatch('LogOut').then(() => {
+            location.href = `http://192.168.1.224:8080/logout?service=${location.origin}/csj_login`
+          })
+        }
       })
     }
   }
@@ -91,4 +98,3 @@ export default {
   }
 }
 </style>
-
