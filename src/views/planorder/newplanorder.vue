@@ -1,6 +1,6 @@
 <template lang="html">
 <div class="app-container">
-  <el-form :model="planform" :rules="rules" ref="ruleForm" label-width="80px">
+  <el-form :model="planform" :rules="rules" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="询价方" prop="enquiryOrder.customer">
@@ -39,6 +39,17 @@
       </el-col>
     </el-row>
     <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="询价截止日期" prop="enquiryOrder.enquiryenddate">
+          <el-date-picker
+            v-model="planform.enquiryOrder.enquiryenddate"
+            type="datetime"
+            :editable="false"
+            placeholder="选择日期时间"
+            align="right">
+          </el-date-picker>
+        </el-form-item>
+      </el-col>
       <el-col :span="8">
         <el-form-item label="数量合计">
           <el-input :value="sumordernum" :disabled="true"></el-input>
@@ -199,10 +210,10 @@
               <template v-if="scope.row.edit">
                 <el-select v-model="scope.row.servvicer" filterable placeholder="请选择">
                   <el-option
-                    v-for="item in servvicers"
-                    :key="item.servvicer"
-                    :label="item.servvicer"
-                    :value="item.servvicername">
+                    v-for="item in gridData"
+                    :key="item.id"
+                    :label="item.requestid"
+                    :value="item.name">
                   </el-option>
                 </el-select>
               </template>
@@ -283,6 +294,7 @@ export default {
       planform: {
         enquiryOrder: {
           customer: '', // 询价方id
+          customname: '', // 查询放名称
           enterprise: '', // 报价方id
           enterprisename: '', // 报价方名称
           createuser: '', // 创建人
@@ -298,6 +310,7 @@ export default {
           memos: '', // 备注
           customerorderno: '', // 客户订单号
           enquirydate: '', // 询价日期
+          enquiryenddate: '', // 询价截止日期
           paymethod: '' // 付款方式
         },
         enquiryOrderItems: [
@@ -331,6 +344,9 @@ export default {
           ],
           enquirydate: [
             { required: true, message: '请选择询价日期', trigger: 'change' }
+          ],
+          enquiryenddate: [
+            { required: true, message: '请选择询价截止日期', trigger: 'change' }
           ],
           paymethod: [
             { required: true, message: '请选择付款方式', trigger: 'change' }
@@ -371,6 +387,17 @@ export default {
       }
       return tname
     },
+    customname() {
+      let tname = ''
+      if (this.gridData.length) {
+        this.gridData.map(d => {
+          if (d.requestid === this.planform.enquiryOrder.customer) {
+            tname = d.name
+          }
+        })
+      }
+      return tname
+    },
     ...mapGetters([
       'company',
       'companyId',
@@ -391,6 +418,7 @@ export default {
           this.submitloading = true
           const postData = JSON.parse(JSON.stringify(this.planform))
           postData.enquiryOrder.enterprisename = this.enterprisename
+          postData.enquiryOrder.customname = this.customname
           postData.enquiryOrder.createuser = this.userInfo.truename
           addOrUpdateenquiryOrder(postData).then(
             res => {
@@ -402,10 +430,16 @@ export default {
                   type: 'success'
                 }).then(
                   _ => {
-                    //
+                    this.planform = {
+                      enquiryOrder: {},
+                      enquiryOrderItems: []
+                    }
                   }
                 ).catch(_ => {
-                  //
+                  this.planform = {
+                    enquiryOrder: {},
+                    enquiryOrderItems: []
+                  }
                 })
               }
               this.submitloading = false

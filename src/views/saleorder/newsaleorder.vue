@@ -1,0 +1,612 @@
+<template lang="html">
+<div class="app-container">
+  <el-form :model="planform" :rules="rules" ref="ruleForm" label-width="120px">
+    <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="计划收货日期" prop="saleOrder.planarrivedate">
+          <el-date-picker
+            v-model="planform.saleOrder.planarrivedate"
+            type="datetime"
+            :editable="false"
+            placeholder="选择日期时间"
+            align="right">
+          </el-date-picker>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="收货人电话" prop="saleOrder.linktel">
+          <el-input type="number" v-model="planform.saleOrder.linktel" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="交货地址" prop="saleOrder.receiveaddress">
+          <el-input type="text" v-model="planform.saleOrder.receiveaddress" ></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="收货人" prop="saleOrder.linkusername">
+          <el-input type="text" v-model="planform.saleOrder.linkusername" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="交货方式">
+          <el-select v-model="planform.saleOrder.deliverway" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in deliverway"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="客户" prop="saleOrder.customer">
+          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in gridData"
+              :key="item.id"
+              :label="item.name"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="8">
+        <el-form-item label="付款方式" prop="saleOrder.recmethod">
+          <el-select v-model="planform.saleOrder.recmethod" placeholder="请选择">
+            <!-- <el-option label="全部" value="0" ></el-option> -->
+            <el-option label="货到付款" value="1" ></el-option>
+            <el-option label="现金付款" value="2" ></el-option>
+            <el-option label="预付款" value="3" ></el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <div class="itemscont">
+      <h3>
+        销售单明细
+        <el-button
+          size="mini"
+          type="primary"
+          @click="importEXL">
+          导入Excel
+        </el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          @click="addDetail">
+          新增一行
+        </el-button>
+        <el-button
+          size="mini"
+          type="warning"
+          v-show="multipleSelection.length"
+          @click="delChecked">
+          删除选中
+        </el-button>
+      </h3>
+      <el-form-item label-width="0" prop="saleOrderItems">
+        <el-table
+          :data="planform.saleOrderItems"
+          style="width: 100%"
+          @selection-change="handleSelectionChange"
+          border
+          max-height="600">
+          <el-table-column
+            type="selection"
+            fixed="left"
+            width="55">
+          </el-table-column>
+          <el-table-column
+            label="物料名称"
+            width="120">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialname"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialname }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="品牌"
+            width="120">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialtag"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialtag }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="规格"
+            width="200">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialnrule"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialnrule }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="型号"
+            width="200">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialnsize"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialnsize }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="数量"
+            width="80">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.ordernum"></el-input>
+              </template>
+              <span v-else>{{ scope.row.ordernum }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="单位"
+            width="80">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.orderunit"></el-input>
+              </template>
+              <span v-else>{{ scope.row.orderunit }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="单价"
+            width="100">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.orderprice"></el-input>
+              </template>
+              <span v-else>{{ scope.row.orderprice }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="质保期"
+            width="100">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-date-picker
+                  v-model="scope.row.warrantydate"
+                  type="datetime"
+                  :editable="false"
+                  placeholder="选择日期时间"
+                  align="right">
+                </el-date-picker>
+              </template>
+              <span v-else>{{ scope.row.warrantydate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="供货期"
+            width="100">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-date-picker
+                  v-model="scope.row.supplydate"
+                  type="datetime"
+                  :editable="false"
+                  placeholder="选择日期时间"
+                  align="right">
+                </el-date-picker>
+              </template>
+              <span v-else>{{ scope.row.supplydate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="供应商"
+            width="100">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-select v-model="scope.row.servvicer" filterable placeholder="请选择">
+                  <el-option
+                    v-for="item in gridData"
+                    :key="item.id"
+                    :label="item.requestid"
+                    :value="item.name">
+                  </el-option>
+                </el-select>
+              </template>
+              <span v-else>{{ scope.row.servvicername }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="备注"
+            width="100">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.memos"></el-input>
+              </template>
+              <span v-else>{{ scope.row.memos }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="220">
+            <template slot-scope="scope">
+              <el-button v-if="scope.row.edit" type="success" @click="editRow(scope.row)" size="mini" >确定</el-button>
+              <el-button v-else @click="goeditrow(scope.$index)" size="mini" >编辑</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-form-item>
+    </div>
+    <el-form-item label-width="0">
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建计划单</el-button>
+      <el-button @click="onCancel">取消</el-button>
+    </el-form-item>
+  </el-form>
+  <!-- 上传弹框 -->
+  <el-dialog
+    title="提示"
+    :visible.sync="dialogVisible"
+    center
+    width="50%">
+    <el-upload
+      class="upload-demo"
+      ref="upload"
+      :action="uploadUrl"
+      :limit="1"
+      :file-list = "fileList"
+      :on-exceed="handleExceed"
+      name="myFile"
+      :accept="'.xls,.xlsx'"
+      :on-change="handelUploadChange"
+      :on-success="handleUploadSuccess"
+      :auto-upload="false">
+      <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+      <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload" v-show="uploadButtonVisible">上传到服务器</el-button>
+      <div slot="tip" class="el-upload__tip">只能上传xls和xlsx文件,文件最大不能超过5M。
+        <a class="dlink" href="/static/templet/enquiry.xls" >下载模板</a>
+      </div>
+    </el-upload>
+  </el-dialog>
+</div>
+</template>
+
+<script>
+import { getGys, addOrUpdateSaleOrder } from '@/api/planorder'
+import { mapGetters } from 'vuex'
+import { parseTime } from '@/utils'
+export default {
+  data() {
+    var checkDetail = (rule, value, callback) => {
+      if (!value.length) {
+        return callback(new Error('招标物品明细不能空'))
+      }
+      setTimeout(() => {
+        callback()
+      }, 300)
+    }
+    return {
+      planform: {
+        saleOrder: {
+          ticketno: '', // 订单号
+          customer: '', // 客户id
+          customername: '', // 客户名称
+          planarrivedate: '', // 计划收货日期
+          sumordernum: '', // 数量
+          sumorderamount: '', // 金额
+          sumsendnum: '', // 已发数量
+          status: '', // 单据状态 --1（草稿） 0（待审核） 1(确认通过) -2（ 驳回 ）
+          createuser: '', // 创建人
+          createdate: '', // 创建日期
+          createtime: '', // 创建时间
+          checkuser: '', // 审核人
+          checkdate: '', // 审核日期
+          checktime: '', // 审核时间
+          checkadvice: '', // 审核意见
+          enterprise: '', // //企业id（裕达）
+          enterprisename: '', // 企业名称（裕达）
+          recmethod: '', // 收款方式
+          deliverway: '', // 交货方式  1、库发  2、供应商直发
+          receiveaddress: '', // 收货地址
+          linkusername: '', // 收货联系人
+          linktel: '', // 收货联系电话
+          customerorderno: '', // 客户订单号
+          sumtaxamount: '', // 税额
+          store: '', // 发出仓库
+          closed: '', // 完结标示
+          memos: '' // 备注
+        },
+        saleOrderItems: [
+          {
+            material: '', // 川商品id
+            materialno: '', // 川商品编码
+            materialname: '', // 川商品名称
+            materialnrule: '', // 商品规格
+            materialnsize: '', // 商品型号
+            materialtag: '', // 品牌
+            orderunit: '', // 单位
+            taxrate: '', // 税率（%）
+            taxamount: '', // 税额
+            ordernum: '', // 数量
+            saleprice: '', // 销售单价
+            orderamount: '', // 销售金额
+            closedcode: '' // 完成标示
+          }
+        ]
+      },
+      rules: {
+        saleOrder: {
+          customer: [
+            { required: true, message: '请选择询价方', trigger: 'blur' }
+          ],
+          enterprise: [
+            { required: true, message: '请选报价方', trigger: 'blur' }
+          ],
+          enquirydate: [
+            { required: true, message: '请选择询价日期', trigger: 'change' }
+          ],
+          enquiryenddate: [
+            { required: true, message: '请选择询价截止日期', trigger: 'change' }
+          ],
+          paymethod: [
+            { required: true, message: '请选择付款方式', trigger: 'change' }
+          ]
+        },
+        saleOrderItems: [
+          { validator: checkDetail, required: true, trigger: 'blur' }
+        ]
+      },
+      dialogVisible: false,
+      uploadUrl: '/planapi/excel/saleOrder/export', // 上传路径
+      fileList: [],
+      uploadButtonVisible: false,
+      dialogTableVisible: false,
+      gridData: [],
+      gridLoading: false,
+      currentRow: {},
+      multipleSelection: [],
+      submitloading: false,
+      deliverway: [
+        {
+          name: '库发',
+          value: '1'
+        },
+        {
+          name: '供应商直发',
+          value: '2'
+        }
+      ]
+    }
+  },
+  computed: {
+    sumordernum() {
+      let total = 0
+      this.planform.saleOrderItems.forEach(item => {
+        total += item.ordernum
+      })
+      return total
+    },
+    enterprisename() {
+      let tname = ''
+      if (this.gridData.length) {
+        this.gridData.map(d => {
+          if (d.requestid === this.planform.saleOrder.enterprise) {
+            tname = d.name
+          }
+        })
+      }
+      return tname
+    },
+    customname() {
+      let tname = ''
+      if (this.gridData.length) {
+        this.gridData.map(d => {
+          if (d.requestid === this.planform.saleOrder.customer) {
+            tname = d.name
+          }
+        })
+      }
+      return tname
+    },
+    ...mapGetters([
+      'company',
+      'companyId',
+      'userInfo'
+    ])
+  },
+  filters: {
+    parseTime
+  },
+  created() {
+    this.getCustomer()
+  },
+  methods: {
+    onSubmit() {
+      this.$refs['ruleForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          this.submitloading = true
+          const postData = JSON.parse(JSON.stringify(this.planform))
+          postData.saleOrder.enterprisename = this.enterprisename
+          postData.saleOrder.customname = this.customname
+          postData.saleOrder.createuser = this.userInfo.truename
+          addOrUpdateSaleOrder(postData).then(
+            res => {
+              console.log(res)
+              if (res.code === '200' && res.data) {
+                this.$confirm('新建销售单成功！', '提示', {
+                  confirmButtonText: '继续',
+                  cancelButtonText: '关闭',
+                  type: 'success'
+                }).then(
+                  _ => {
+                    this.planform = {
+                      saleOrder: {},
+                      saleOrderItems: []
+                    }
+                  }
+                ).catch(_ => {
+                  this.planform = {
+                    saleOrder: {},
+                    saleOrderItems: []
+                  }
+                })
+              }
+              this.submitloading = false
+            }
+          ).catch(err => {
+            console.log(err)
+            this.submitloading = false
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
+    handelUploadChange(file, fileList) {
+      // 选择文件时显示上传按钮
+      if (Object.keys(file).length && fileList.length) {
+        this.uploadButtonVisible = true
+      } else {
+        this.uploadButtonVisible = false
+      }
+    },
+    handleUploadSuccess(res, file, fileList) {
+      if (res.code === '200') {
+        this.$confirm(res.message, '提示', {
+          confirmButtonText: '完成',
+          cancelButtonText: '继续导入',
+          type: 'success'
+        }).then(_ => {
+          this.dialogVisible = false
+        }).catch(_ => {})
+        res.data.map(row => { row.edit = false })
+        this.planform.saleOrderItems = [...this.planform.saleOrderItems, ...res.data]
+      } else {
+        this.$message({
+          message: res.message,
+          type: 'error'
+        })
+      }
+      this.$refs['upload'].clearFiles()
+    },
+    submitUpload() {
+      this.$refs.upload.submit()
+    },
+    handleClose(done) {
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          done()
+        })
+        .catch(_ => {})
+    },
+    handleDelete(index, row) {
+      this.planform.saleOrderItems.splice(index, 1)
+      this.$message({
+        message: '成功删除一条记录！',
+        type: 'success'
+      })
+    },
+    editRow(row) {
+      row.edit = false
+    },
+    goeditrow(index) {
+      this.planform.saleOrderItems[index].edit = true
+      this.planform = JSON.parse(JSON.stringify(this.planform))
+    },
+    handleExceed(files, fileList) {
+      this.$message.warning(`当前限制选择上传 1 个文件`)
+    },
+    importEXL() {
+      this.dialogVisible = true
+    },
+    addDetail() {
+      this.planform.saleOrderItems.push(
+        {
+          servicer: '', // 服务商
+          servvicername: '', // 服务商名称
+          itemno: '', // 行号
+          material: '', // 川商品id
+          materialno: '', // 川商品编码
+          materialname: '', // 川商品名称
+          materialnrule: '', // 商品规格
+          materialnsize: '', // 商品型号
+          materialtag: '', // 品牌
+          orderunit: '', // 单位
+          orderprice: '', // 单价
+          orderamount: '', // 金额
+          ordernum: '', // 数量
+          warrantydate: '', // 质保期
+          supplydate: '', // 交货日期
+          memos: '' // 备注
+        }
+      )
+    },
+    getCustomer() {
+      this.dialogTableVisible = true
+      if (!this.gridData.length) {
+        this.gridLoading = true
+        getGys().then(
+          res => {
+            this.gridData = res.data
+            this.gridLoading = false
+          }
+        ).catch(err => {
+          console.log(err)
+          this.gridLoading = false
+        })
+      }
+    },
+    handleCurrentChange(val) {
+      this.currentRow = val
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    onCancel() {
+      this.planform = {
+        saleOrder: {},
+        saleOrderItems: []
+      }
+    },
+    handelDialogConfirm() {
+      this.dialogTableVisible = false
+      this.planform.saleOrder.customer = JSON.parse(JSON.stringify(this.currentRow))
+    },
+    handelDialogCancel() {
+      this.dialogTableVisible = false
+      this.planform.saleOrder.customer = JSON.parse(JSON.stringify({
+        code: '',
+        id: '',
+        name: ''
+      }))
+    },
+    delChecked() {
+      const dt = this.planform.saleOrderItems.filter(item => {
+        return !this.multipleSelection.includes(item)
+      })
+      this.planform.saleOrderItems = JSON.parse(JSON.stringify(dt))
+    }
+  }
+}
+</script>
+
+<style scoped>
+.line{
+  text-align: center;
+}
+.dlink {
+  color: #409EFF;
+}
+h3 {
+  font-size: 14px;
+  font-weight: normal;
+}
+</style>

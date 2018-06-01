@@ -50,7 +50,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label-width="0">
+        <el-form-item label-width="0" >
           <el-button type="primary" @click="onSubmit">查询</el-button>
           <el-button @click="onCancel">重置</el-button>
         </el-form-item>
@@ -70,8 +70,10 @@
         </el-table-column>
         <el-table-column
           label="单号"
-          prop="ticketno"
           width="220">
+          <template slot-scope="scope">
+            <el-button type="text" @click="viewRow(scope.row)">{{scope.row.ticketno}}</el-button>
+          </template>
         </el-table-column>
         <el-table-column
           width="200"
@@ -223,7 +225,8 @@ export default {
       return tname
     },
     getListData() {
-      List({ pagesize: this.pagesize, pageindex: this.pageindex }).then(res => {
+      const postData = this.planform.enquiryOrder
+      List({ pagesize: this.pagesize, pageindex: this.pageindex, ...postData }).then(res => {
         this.list = res.data.data
         this.total = res.data.total
         this.currentPage = res.data.currentPage
@@ -233,21 +236,15 @@ export default {
       })
     },
     onSubmit() {
-
+      this.getListData()
     },
-    handleDelete(index, row) {
-      this.planform.enquiryOrderItems.splice(index, 1)
-      this.$message({
-        message: '成功删除一条记录！',
-        type: 'success'
+    viewRow(row) {
+      this.$router.push({
+        name: 'plandetail',
+        params: {
+          requestid: row.requestid
+        }
       })
-    },
-    editRow(row) {
-      row.edit = false
-    },
-    goeditrow(index) {
-      this.planform.enquiryOrderItems[index].edit = true
-      this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     getCustomer() {
       this.dialogTableVisible = true

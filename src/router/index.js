@@ -64,6 +64,34 @@ export const constantRouterMap = [
           title: '计划单查询',
           icon: 'tree'
         }
+      },
+      {
+        path: 'plandetail/:requestid',
+        component: _import('planorder/plandetail'),
+        name: 'plandetail',
+        hidden: true,
+        meta: {
+          title: '计划单详情'
+        }
+      }
+    ]
+  },
+  {
+    path: '/saleorder',
+    component: Layout,
+    redirect: '/saleorder/newsaleorder',
+    name: 'saleorder',
+    alwaysShow: true,
+    meta: { title: '销售单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newsaleorder',
+        component: _import('saleorder/newsaleorder'),
+        name: 'newsaleorder',
+        meta: {
+          title: '新建销售单',
+          icon: 'form'
+        }
       }
     ]
   }
