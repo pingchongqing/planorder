@@ -22,11 +22,27 @@ module.exports = {
         changeOrigin: true,
       },
       '/planapi': {
-        target: 'http://192.168.2.33:8082',
+        target: 'http://192.168.2.34:8082',
         // target: 'http://ztbtest.csjscm.com',
         changeOrigin: true,
         pathRewrite: {
           '^/planapi': '/'
+        }
+      },
+      '/jqmapi': {
+        target: 'http://192.168.2.33:8082',
+        // target: 'http://ztbtest.csjscm.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/jqmapi': '/'
+        }
+      },
+      '/yyjapi': {
+        target: 'http://192.168.2.44:8082',
+        // target: 'http://ztbtest.csjscm.com',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/yyjapi': '/'
         }
       }
     },

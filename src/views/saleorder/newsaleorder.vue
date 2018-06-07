@@ -31,7 +31,7 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交货方式">
+        <el-form-item label="交货方式" prop="saleOrder.deliverway">
           <el-select v-model="planform.saleOrder.deliverway" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
             <el-option
               v-for="item in deliverway"
@@ -61,9 +61,13 @@
           <el-select v-model="planform.saleOrder.recmethod" placeholder="请选择">
             <!-- <el-option label="全部" value="0" ></el-option> -->
             <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="现金付款" value="2" ></el-option>
-            <el-option label="预付款" value="3" ></el-option>
+            <el-option label="预付款" value="2" ></el-option>
           </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="来源计划单号" prop="saleOrder.enquiryorder">
+          <el-input :disabled="true" v-model="planform.saleOrder.enquiryorder"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
@@ -103,13 +107,50 @@
             width="55">
           </el-table-column>
           <el-table-column
-            label="物料名称"
+            label="序号"
+            width="55">
+            <template slot-scope="scope">
+              <span >{{ scope.$index+1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="商品编码"
+            width="120">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.custommaterialno"></el-input>
+              </template>
+              <span v-else>{{ scope.row.custommaterialno }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="商品名称"
             width="120">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-input class="edit-input" size="small" v-model="scope.row.materialname"></el-input>
               </template>
               <span v-else>{{ scope.row.materialname }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="规格"
+            width="200">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialrule"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialrule }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="型号"
+            width="200">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.materialsize"></el-input>
+              </template>
+              <span v-else>{{ scope.row.materialsize }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -123,27 +164,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="规格"
-            width="200">
-            <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.materialnrule"></el-input>
-              </template>
-              <span v-else>{{ scope.row.materialnrule }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="型号"
-            width="200">
-            <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.materialnsize"></el-input>
-              </template>
-              <span v-else>{{ scope.row.materialnsize }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="数量"
+            label="销售数量"
             width="80">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
@@ -163,62 +184,30 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="单价"
+            label="销售单价"
             width="100">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.orderprice"></el-input>
+                <el-input class="edit-input" size="small" v-model="scope.row.saleprice"></el-input>
               </template>
-              <span v-else>{{ scope.row.orderprice }}</span>
+              <span v-else>{{ scope.row.saleprice }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            label="质保期"
+            label="销售金额"
             width="100">
             <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-date-picker
-                  v-model="scope.row.warrantydate"
-                  type="datetime"
-                  :editable="false"
-                  placeholder="选择日期时间"
-                  align="right">
-                </el-date-picker>
-              </template>
-              <span v-else>{{ scope.row.warrantydate }}</span>
+              <span>{{ scope.row.saleprice*scope.row.ordernum }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            label="供货期"
+            label="税率"
             width="100">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-date-picker
-                  v-model="scope.row.supplydate"
-                  type="datetime"
-                  :editable="false"
-                  placeholder="选择日期时间"
-                  align="right">
-                </el-date-picker>
+                <el-input class="edit-input" size="small" v-model="scope.row.taxrate"></el-input>
               </template>
-              <span v-else>{{ scope.row.supplydate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="供应商"
-            width="100">
-            <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-select v-model="scope.row.servvicer" filterable placeholder="请选择">
-                  <el-option
-                    v-for="item in gridData"
-                    :key="item.id"
-                    :label="item.requestid"
-                    :value="item.name">
-                  </el-option>
-                </el-select>
-              </template>
-              <span v-else>{{ scope.row.servvicername }}</span>
+              <span v-else>{{ scope.row.taxrate }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -245,7 +234,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建计划单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建销售单</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -270,7 +259,7 @@
       <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
       <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload" v-show="uploadButtonVisible">上传到服务器</el-button>
       <div slot="tip" class="el-upload__tip">只能上传xls和xlsx文件,文件最大不能超过5M。
-        <a class="dlink" href="/static/templet/enquiry.xls" >下载模板</a>
+        <a class="dlink" href="/static/templet/saletemplet.xls" >下载模板</a>
       </div>
     </el-upload>
   </el-dialog>
@@ -278,7 +267,7 @@
 </template>
 
 <script>
-import { getGys, addOrUpdateSaleOrder } from '@/api/planorder'
+import { addOrUpdateSaleOrder } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -320,41 +309,50 @@ export default {
           sumtaxamount: '', // 税额
           store: '', // 发出仓库
           closed: '', // 完结标示
-          memos: '' // 备注
+          memos: '', // 备注
+          enquiryorder: this.$route.params.enquiryorder // 来源计划单号
         },
         saleOrderItems: [
-          {
-            material: '', // 川商品id
-            materialno: '', // 川商品编码
-            materialname: '', // 川商品名称
-            materialnrule: '', // 商品规格
-            materialnsize: '', // 商品型号
-            materialtag: '', // 品牌
-            orderunit: '', // 单位
-            taxrate: '', // 税率（%）
-            taxamount: '', // 税额
-            ordernum: '', // 数量
-            saleprice: '', // 销售单价
-            orderamount: '', // 销售金额
-            closedcode: '' // 完成标示
-          }
+          // {
+          //   material: '', // 川商品id
+          //   materialno: '', // 川商品编码
+          //   custommaterialno: '',
+          //   materialname: '', // 川商品名称
+          //   materialrule: '', // 商品规格
+          //   materialsize: '', // 商品型号
+          //   materialtag: '', // 品牌
+          //   orderunit: '', // 单位
+          //   taxrate: '', // 税率（%）
+          //   taxamount: '', // 税额
+          //   ordernum: '', // 数量
+          //   sendnum: '', // 已发数量
+          //   saleprice: '', // 销售单价
+          //   orderamount: '', // 销售金额
+          //   closedcode: '' // 完成标示
+          // }
         ]
       },
       rules: {
         saleOrder: {
+          planarrivedate: [
+            { required: true, message: '请选择到货日期', trigger: 'change' }
+          ],
+          linktel: [
+            { required: true, message: '收货人电话', trigger: 'change' }
+          ],
+          receiveaddress: [
+            { required: true, message: '请输入交货地址', trigger: 'blur' }
+          ],
+          linkusername: [
+            { required: true, message: '请输入收货人', trigger: 'blur' }
+          ],
+          deliverway: [
+            { required: true, message: '请选择交货方式', trigger: 'change' }
+          ],
           customer: [
-            { required: true, message: '请选择询价方', trigger: 'blur' }
+            { required: true, message: '请选择客户', trigger: 'change' }
           ],
-          enterprise: [
-            { required: true, message: '请选报价方', trigger: 'blur' }
-          ],
-          enquirydate: [
-            { required: true, message: '请选择询价日期', trigger: 'change' }
-          ],
-          enquiryenddate: [
-            { required: true, message: '请选择询价截止日期', trigger: 'change' }
-          ],
-          paymethod: [
+          recmethod: [
             { required: true, message: '请选择付款方式', trigger: 'change' }
           ]
         },
@@ -367,9 +365,6 @@ export default {
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
-      gridData: [],
-      gridLoading: false,
-      currentRow: {},
       multipleSelection: [],
       submitloading: false,
       deliverway: [
@@ -385,6 +380,13 @@ export default {
     }
   },
   computed: {
+    sumorderamount() {
+      let total = 0
+      this.planform.saleOrderItems.forEach(item => {
+        total += item.ordernum * item.saleprice
+      })
+      return total
+    },
     sumordernum() {
       let total = 0
       this.planform.saleOrderItems.forEach(item => {
@@ -396,35 +398,47 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.requestid === this.planform.saleOrder.enterprise) {
+          if (d.ticketno === this.planform.saleOrder.enterprise) {
             tname = d.name
           }
         })
       }
       return tname
     },
-    customname() {
+    customername() {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.requestid === this.planform.saleOrder.customer) {
+          if (d.ticketno === this.planform.saleOrder.customer) {
             tname = d.name
           }
         })
       }
       return tname
     },
-    ...mapGetters([
-      'company',
-      'companyId',
-      'userInfo'
-    ])
+    ...mapGetters({
+      company: 'company',
+      companyId: 'companyId',
+      userInfo: 'userInfo',
+      visitedViews: 'visitedViews',
+      revstoreList: 'storeList',
+      gridData: 'gysList'
+    })
   },
   filters: {
     parseTime
   },
   created() {
-    this.getCustomer()
+    if (!this.gridData.length) {
+      this.$store.dispatch('GetGysList')
+    }
+    if (!this.$route.params.enquiryorder) {
+      this.$alert('请先选择计划单再创建销售单').then(_ => {
+        this.$router.push({
+          name: 'planorderlist'
+        })
+      })
+    }
   },
   methods: {
     onSubmit() {
@@ -432,30 +446,35 @@ export default {
         console.log(valid)
         if (valid) {
           this.submitloading = true
+          const view = this.visitedViews.filter(v => v.path === this.$route.path)
           const postData = JSON.parse(JSON.stringify(this.planform))
-          postData.saleOrder.enterprisename = this.enterprisename
-          postData.saleOrder.customname = this.customname
+          postData.saleOrder.customername = this.customername
           postData.saleOrder.createuser = this.userInfo.truename
+          postData.saleOrder.planarrivedate = parseTime(this.planform.saleOrder.planarrivedate)
+          postData.saleOrder.sumorderamount = this.sumorderamount
           addOrUpdateSaleOrder(postData).then(
             res => {
               console.log(res)
               if (res.code === '200' && res.data) {
                 this.$confirm('新建销售单成功！', '提示', {
-                  confirmButtonText: '继续',
+                  confirmButtonText: '查看详情',
                   cancelButtonText: '关闭',
                   type: 'success'
                 }).then(
                   _ => {
-                    this.planform = {
-                      saleOrder: {},
-                      saleOrderItems: []
-                    }
+                    this.$store.dispatch('delVisitedViews', view[0]).then(() => {
+                      this.$router.push({
+                        name: 'saleorderdetail',
+                        params: {
+                          ticketno: res.data
+                        }
+                      })
+                    })
                   }
                 ).catch(_ => {
-                  this.planform = {
-                    saleOrder: {},
-                    saleOrderItems: []
-                  }
+                  this.$store.dispatch('delVisitedViews', view[0]).then(() => {
+                    this.$router.push('/')
+                  })
                 })
               }
               this.submitloading = false
@@ -530,39 +549,22 @@ export default {
     addDetail() {
       this.planform.saleOrderItems.push(
         {
-          servicer: '', // 服务商
-          servvicername: '', // 服务商名称
-          itemno: '', // 行号
           material: '', // 川商品id
           materialno: '', // 川商品编码
           materialname: '', // 川商品名称
-          materialnrule: '', // 商品规格
-          materialnsize: '', // 商品型号
+          materialrule: '', // 商品规格
+          materialsize: '', // 商品型号
           materialtag: '', // 品牌
           orderunit: '', // 单位
-          orderprice: '', // 单价
-          orderamount: '', // 金额
+          taxrate: '', // 税率（%）
+          taxamount: '', // 税额
           ordernum: '', // 数量
-          warrantydate: '', // 质保期
-          supplydate: '', // 交货日期
-          memos: '' // 备注
+          sendnum: '', // 已发数量
+          saleprice: '', // 销售单价
+          orderamount: '', // 销售金额
+          closedcode: '' // 完成标示
         }
       )
-    },
-    getCustomer() {
-      this.dialogTableVisible = true
-      if (!this.gridData.length) {
-        this.gridLoading = true
-        getGys().then(
-          res => {
-            this.gridData = res.data
-            this.gridLoading = false
-          }
-        ).catch(err => {
-          console.log(err)
-          this.gridLoading = false
-        })
-      }
     },
     handleCurrentChange(val) {
       this.currentRow = val

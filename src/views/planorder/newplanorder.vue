@@ -40,7 +40,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="询价截止日期" prop="enquiryOrder.enquiryenddate">
+        <el-form-item label="报价截止日期" prop="enquiryOrder.enquiryenddate">
           <el-date-picker
             v-model="planform.enquiryOrder.enquiryenddate"
             type="datetime"
@@ -60,8 +60,7 @@
           <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
             <!-- <el-option label="全部" value="0" ></el-option> -->
             <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="现金付款" value="2" ></el-option>
-            <el-option label="预付款" value="3" ></el-option>
+            <el-option label="预付款" value="2" ></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -102,6 +101,16 @@
             width="55">
           </el-table-column>
           <el-table-column
+            label="序号"
+            width="80">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.itemno"></el-input>
+              </template>
+              <span v-else>{{ scope.row.itemno }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="物料名称"
             width="120">
             <template slot-scope="scope">
@@ -126,9 +135,9 @@
             width="200">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.materialnrule"></el-input>
+                <el-input class="edit-input" size="small" v-model="scope.row.materialrule"></el-input>
               </template>
-              <span v-else>{{ scope.row.materialnrule }}</span>
+              <span v-else>{{ scope.row.materialrule }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -136,9 +145,9 @@
             width="200">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.materialnsize"></el-input>
+                <el-input class="edit-input" size="small" v-model="scope.row.materialsize"></el-input>
               </template>
-              <span v-else>{{ scope.row.materialnsize }}</span>
+              <span v-else>{{ scope.row.materialsize }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -159,16 +168,6 @@
                 <el-input class="edit-input" size="small" v-model="scope.row.orderunit"></el-input>
               </template>
               <span v-else>{{ scope.row.orderunit }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="单价"
-            width="100">
-            <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.orderprice"></el-input>
-              </template>
-              <span v-else>{{ scope.row.orderprice }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -212,7 +211,7 @@
                   <el-option
                     v-for="item in gridData"
                     :key="item.id"
-                    :label="item.requestid"
+                    :label="item.ticketno"
                     :value="item.name">
                   </el-option>
                 </el-select>
@@ -277,7 +276,7 @@
 </template>
 
 <script>
-import { getGys, addOrUpdateenquiryOrder } from '@/api/planorder'
+import { addOrUpdateenquiryOrder } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -316,13 +315,13 @@ export default {
         enquiryOrderItems: [
           // {
           //   servicer: '', // 服务商
-          //   servvicername: '', // 服务商名称
+          //   servicername: '', // 服务商名称
           //   itemno: '', // 行号
           //   material: '', // 川商品id
           //   materialno: '', // 川商品编码
           //   materialname: '', // 川商品名称
-          //   materialnrule: '', // 商品规格
-          //   materialnsize: '', // 商品型号
+          //   materialrule: '', // 商品规格
+          //   materialsize: '', // 商品型号
           //   materialtag: '', // 品牌
           //   orderunit: '', // 单位
           //   orderprice: '', // 单价
@@ -361,9 +360,6 @@ export default {
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
-      gridData: [],
-      gridLoading: false,
-      currentRow: {},
       multipleSelection: [],
       submitloading: false
     }
@@ -398,17 +394,22 @@ export default {
       }
       return tname
     },
-    ...mapGetters([
-      'company',
-      'companyId',
-      'userInfo'
-    ])
+    ...mapGetters({
+      company: 'company',
+      companyId: 'companyId',
+      userInfo: 'userInfo',
+      visitedViews: 'visitedViews',
+      revstoreList: 'storeList',
+      gridData: 'gysList'
+    })
   },
   filters: {
     parseTime
   },
   created() {
-    this.getCustomer()
+    if (!this.gridData.length) {
+      this.$store.dispatch('GetGysList')
+    }
   },
   methods: {
     onSubmit() {
@@ -416,6 +417,7 @@ export default {
         console.log(valid)
         if (valid) {
           this.submitloading = true
+          const view = this.visitedViews.filter(v => v.path === this.$route.path)
           const postData = JSON.parse(JSON.stringify(this.planform))
           postData.enquiryOrder.enterprisename = this.enterprisename
           postData.enquiryOrder.customname = this.customname
@@ -424,22 +426,27 @@ export default {
             res => {
               console.log(res)
               if (res.code === '200' && res.data) {
-                this.$confirm('新建报价单成功！', '提示', {
-                  confirmButtonText: '继续',
-                  cancelButtonText: '关闭',
+                this.$confirm('新建计划单成功！', '提示', {
+                  confirmButtonText: '查看详情',
+                  cancelButtonText: '计划单列表',
                   type: 'success'
                 }).then(
                   _ => {
-                    this.planform = {
-                      enquiryOrder: {},
-                      enquiryOrderItems: []
-                    }
+                    this.$store.dispatch('delVisitedViews', view[0]).then(() => {
+                      this.$router.push({
+                        name: 'plandetail',
+                        params: {
+                          ticketno: res.data
+                        }
+                      })
+                    })
                   }
                 ).catch(_ => {
-                  this.planform = {
-                    enquiryOrder: {},
-                    enquiryOrderItems: []
-                  }
+                  this.$store.dispatch('delVisitedViews', view[0]).then(() => {
+                    this.$router.push({
+                      name: 'planorderlist'
+                    })
+                  })
                 })
               }
               this.submitloading = false
@@ -499,6 +506,10 @@ export default {
       })
     },
     editRow(row) {
+      //   warrantydate: '', // 质保期
+      //   supplydate: '', // 交货日期
+      row.warrantydate = parseTime(row.warrantydate)
+      row.supplydate = parseTime(row.supplydate)
       row.edit = false
     },
     goeditrow(index) {
@@ -515,13 +526,13 @@ export default {
       this.planform.enquiryOrderItems.push(
         {
           servicer: '', // 服务商
-          servvicername: '', // 服务商名称
+          servicername: '', // 服务商名称
           itemno: '', // 行号
           material: '', // 川商品id
           materialno: '', // 川商品编码
           materialname: '', // 川商品名称
-          materialnrule: '', // 商品规格
-          materialnsize: '', // 商品型号
+          materialrule: '', // 商品规格
+          materialsize: '', // 商品型号
           materialtag: '', // 品牌
           orderunit: '', // 单位
           orderprice: '', // 单价
@@ -532,21 +543,6 @@ export default {
           memos: '' // 备注
         }
       )
-    },
-    getCustomer() {
-      this.dialogTableVisible = true
-      if (!this.gridData.length) {
-        this.gridLoading = true
-        getGys().then(
-          res => {
-            this.gridData = res.data
-            this.gridLoading = false
-          }
-        ).catch(err => {
-          console.log(err)
-          this.gridLoading = false
-        })
-      }
     },
     handleCurrentChange(val) {
       this.currentRow = val

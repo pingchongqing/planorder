@@ -11,6 +11,8 @@ const getters = {
   cachedViews: state => state.tagsView.cachedViews,
   menu: state => state.menu.menu,
   permission_routers: state => state.permission.routers,
-  addRouters: state => state.permission.addRouters
+  addRouters: state => state.permission.addRouters,
+  storeList: state => state.app.storeList,
+  gysList: state => state.app.gysData
 }
 export default getters

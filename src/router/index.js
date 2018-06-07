@@ -28,7 +28,7 @@ export const constantRouterMap = [
   { path: '/401', component: () => import('@/views/401'), hidden: true },
   { path: '/payresult', component: () => import('@/views/payresult'), hidden: true },
   {
-    path: '',
+    path: '/',
     component: Layout,
     redirect: 'dashboard',
     hidden: true,
@@ -66,7 +66,7 @@ export const constantRouterMap = [
         }
       },
       {
-        path: 'plandetail/:requestid',
+        path: 'plandetail/:ticketno',
         component: _import('planorder/plandetail'),
         name: 'plandetail',
         hidden: true,
@@ -79,17 +79,266 @@ export const constantRouterMap = [
   {
     path: '/saleorder',
     component: Layout,
-    redirect: '/saleorder/newsaleorder',
+    redirect: '/saleorder/saleorderlist',
     name: 'saleorder',
-    alwaysShow: true,
+    alwaysShow: false,
     meta: { title: '销售单', icon: 'tree' }, // you can set roles in root nav
     children: [
       {
-        path: 'newsaleorder',
+        path: 'newsaleorder/:enquiryorder',
         component: _import('saleorder/newsaleorder'),
         name: 'newsaleorder',
+        hidden: true,
         meta: {
           title: '新建销售单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'saleorderlist',
+        component: _import('saleorder/saleorderlist'),
+        name: 'saleorderlist',
+        meta: {
+          title: '销售单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'saleorderdetail/:ticketno',
+        component: _import('saleorder/saleorderdetail'),
+        name: 'saleorderdetail',
+        hidden: true,
+        meta: {
+          title: '销售单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/purchaseorder',
+    component: Layout,
+    redirect: '/purchaseorder/newpurchaseorder',
+    name: 'purchaseorder',
+    alwaysShow: true,
+    meta: { title: '采购单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newpurchaseorder/:enquiryorder',
+        component: _import('purchaseorder/newpurchaseorder'),
+        name: 'newpurchaseorder',
+        hidden: true,
+        meta: {
+          title: '新建采购单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'purchaseorderlist',
+        component: _import('purchaseorder/purchaseorderlist'),
+        name: 'purchaseorderlist',
+        meta: {
+          title: '采购单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'purchaseorderdetail/:ticketno',
+        component: _import('purchaseorder/purchaseorderdetail'),
+        name: 'purchaseorderdetail',
+        hidden: true,
+        meta: {
+          title: '采购单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/quotation',
+    component: Layout,
+    redirect: '/quotation/quotationorderlist',
+    name: 'quotation',
+    meta: { title: '报价单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newquotationorder/:enquiryorder/:type',
+        component: _import('quotation/newquotationorder'),
+        name: 'newquotationorder',
+        hidden: true,
+        meta: {
+          title: '新建报价单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'quotationorderlist',
+        component: _import('quotation/quotationorderlist'),
+        name: 'quotationorderlist',
+        meta: {
+          title: '报价单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'quotationorderdetail/:ticketno',
+        component: _import('quotation/quotationorderdetail'),
+        hidden: true,
+        name: 'quotationorderdetail',
+        meta: {
+          title: '报价单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/outnotice',
+    component: Layout,
+    redirect: '/outnotice/outnoticelist',
+    name: 'outnotice',
+    meta: { title: '发货通知单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newoutnotice/:ticketno',
+        component: _import('outnotice/newoutnotice'),
+        name: 'newoutnotice',
+        hidden: true,
+        meta: {
+          title: '新建发货通知单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'outnoticelist',
+        component: _import('outnotice/outnoticelist'),
+        name: 'outnoticelist',
+        meta: {
+          title: '发货通知单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'outnoticedetail/:ticketno',
+        component: _import('outnotice/outnoticedetail'),
+        hidden: true,
+        name: 'outnoticedetail',
+        meta: {
+          title: '发货通知单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/innotice',
+    component: Layout,
+    redirect: '/innotice/innoticelist',
+    name: 'innotice',
+    meta: { title: '收货通知单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newinnotice/:ticketno',
+        component: _import('innotice/newinnotice'),
+        name: 'newinnotice',
+        hidden: true,
+        meta: {
+          title: '新建收货通知单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'innoticelist',
+        component: _import('innotice/innoticelist'),
+        name: 'innoticelist',
+        meta: {
+          title: '收货通知单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'innoticedetail/:ticketno',
+        component: _import('innotice/innoticedetail'),
+        hidden: true,
+        name: 'innoticedetail',
+        meta: {
+          title: '收货通知单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/outstore',
+    component: Layout,
+    redirect: '/outstore/outstorelist',
+    name: 'outstore',
+    meta: { title: '出库单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newoutstore/:ticketno',
+        component: _import('outstore/newoutstore'),
+        name: 'newoutstore',
+        hidden: true,
+        meta: {
+          title: '新建出库单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'outstorelist',
+        component: _import('outstore/outstorelist'),
+        name: 'outstorelist',
+        meta: {
+          title: '出库单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'outstoredetail/:ticketno',
+        component: _import('outstore/outstoredetail'),
+        hidden: true,
+        name: 'outstoredetail',
+        meta: {
+          title: '出库单详情',
+          icon: 'form'
+        }
+      }
+    ]
+  },
+  {
+    path: '/instore',
+    component: Layout,
+    redirect: '/instore/outstorelist',
+    name: 'instore',
+    meta: { title: '入库单', icon: 'tree' }, // you can set roles in root nav
+    children: [
+      {
+        path: 'newinstore/:ticketno',
+        component: _import('instore/newinstore'),
+        name: 'newinstore',
+        hidden: true,
+        meta: {
+          title: '新建入库单',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'instorelist',
+        component: _import('instore/instorelist'),
+        name: 'instorelist',
+        meta: {
+          title: '入库单查询',
+          icon: 'form'
+        }
+      },
+      {
+        path: 'instoredetail/:ticketno',
+        component: _import('instore/instoredetail'),
+        hidden: true,
+        name: 'instoredetail',
+        meta: {
+          title: '入库单详情',
           icon: 'form'
         }
       }
@@ -244,6 +493,5 @@ export const asyncRouterMap = [
         }
       }
     ]
-  },
-  { path: '*', redirect: '/404', hidden: true }
+  }
 ]

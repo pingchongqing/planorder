@@ -79,7 +79,7 @@
           width="200"
           label="询价企业">
           <template slot-scope="scope">
-            <span>{{ getCustomerName(scope.row.customer) }}</span>
+            <span>{{ scope.row.customname }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -146,7 +146,7 @@
 </template>
 
 <script>
-import { getGys, List } from '@/api/planorder'
+import { List } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -155,6 +155,7 @@ export default {
       planform: {
         enquiryOrder: {
           customer: '', // 询价方id
+          customname: '', // 询价方id
           enterprise: '', // 报价方id
           enterprisename: '', // 报价方名称
           createuser: '', // 创建人
@@ -173,9 +174,6 @@ export default {
           paymethod: '' // 付款方式
         }
       },
-      gridData: [],
-      gridLoading: false,
-      currentRow: {},
       list: [],
       pagesize: 10,
       pageindex: 1,
@@ -184,10 +182,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
-      'company',
-      'companyId'
-    ])
+    ...mapGetters({
+      company: 'company',
+      companyId: 'companyId',
+      userInfo: 'userInfo',
+      visitedViews: 'visitedViews',
+      revstoreList: 'storeList',
+      gridData: 'gysList'
+    })
   },
   filters: {
     parseTime,
@@ -201,7 +203,9 @@ export default {
     }
   },
   created() {
-    this.getCustomer()
+    if (!this.gridData.length) {
+      this.$store.dispatch('GetGysList')
+    }
     this.getListData()
   },
   methods: {
@@ -212,17 +216,6 @@ export default {
     handleCurrentPageChange(val) {
       this.pageindex = val
       this.getListData()
-    },
-    getCustomerName(val) {
-      let tname = ''
-      if (this.gridData.length) {
-        this.gridData.forEach(d => {
-          if (d.requestid === val) {
-            tname = d.name
-          }
-        })
-      }
-      return tname
     },
     getListData() {
       const postData = this.planform.enquiryOrder
@@ -242,24 +235,9 @@ export default {
       this.$router.push({
         name: 'plandetail',
         params: {
-          requestid: row.requestid
+          ticketno: row.ticketno
         }
       })
-    },
-    getCustomer() {
-      this.dialogTableVisible = true
-      if (!this.gridData.length) {
-        this.gridLoading = true
-        getGys().then(
-          res => {
-            this.gridData = res.data
-            this.gridLoading = false
-          }
-        ).catch(err => {
-          console.log(err)
-          this.gridLoading = false
-        })
-      }
     },
     onCancel() {
       this.planform = {
