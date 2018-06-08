@@ -78,6 +78,16 @@
               border
               max-height="600">
               <el-table-column
+                label="序号"
+                width="55">
+                <template slot-scope="scope">
+                  <template v-if="scope.row.edit">
+                    <el-input class="edit-input" size="small" v-model="scope.row.itemno"></el-input>
+                  </template>
+                  <span v-else>{{ scope.row.itemno }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
                 label="物料名称"
                 width="120">
                 <template slot-scope="scope">
@@ -176,7 +186,7 @@
                   <template v-if="scope.row.edit">
                     <el-select v-model="scope.row.servicer" filterable placeholder="请选择">
                       <el-option
-                        v-for="item in servvicers"
+                        v-for="item in servicers"
                         :key="item.servicer"
                         :label="item.servicer"
                         :value="item.servicername">

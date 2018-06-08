@@ -45,7 +45,7 @@
     </el-row>
     <div class="itemscont">
       <h3>
-        计划单物品明细
+        订单明细
       </h3>
       <el-form-item label-width="0" prop="quotationItems">
         <el-table
@@ -115,7 +115,7 @@
           </el-table-column>
           <el-table-column
             label="质保期"
-            width="100">
+            width="160">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-date-picker
@@ -131,7 +131,7 @@
           </el-table-column>
           <el-table-column
             label="供货期"
-            width="100">
+            width="160">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-date-picker
@@ -150,16 +150,16 @@
             width="100">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-select v-model="scope.row.servvicer" filterable placeholder="请选择">
+                <el-select v-model="scope.row.servicer" filterable placeholder="请选择">
                   <el-option
-                    v-for="item in servvicers"
-                    :key="item.servvicer"
-                    :label="item.servvicer"
-                    :value="item.servvicername">
+                    v-for="item in servicers"
+                    :key="item.servicer"
+                    :label="item.servicer"
+                    :value="item.servicername">
                   </el-option>
                 </el-select>
               </template>
-              <span v-else>{{ scope.row.servvicername }}</span>
+              <span v-else>{{ scope.row.servicername }}</span>
             </template>
           </el-table-column>
           <el-table-column

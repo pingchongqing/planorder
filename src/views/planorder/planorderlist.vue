@@ -62,13 +62,6 @@
         style="width: 100%"
         border>
         <el-table-column
-          label="序号"
-          width="55">
-          <template slot-scope="scope">
-            <span >{{ scope.$index + 1 }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
           label="单号"
           width="220">
           <template slot-scope="scope">

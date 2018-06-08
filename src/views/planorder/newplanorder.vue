@@ -177,7 +177,7 @@
               <template v-if="scope.row.edit">
                 <el-date-picker
                   v-model="scope.row.warrantydate"
-                  type="datetime"
+                  type="date"
                   :editable="false"
                   placeholder="选择日期时间"
                   align="right">
@@ -193,7 +193,7 @@
               <template v-if="scope.row.edit">
                 <el-date-picker
                   v-model="scope.row.supplydate"
-                  type="datetime"
+                  type="date"
                   :editable="false"
                   placeholder="选择日期时间"
                   align="right">
@@ -204,19 +204,19 @@
           </el-table-column>
           <el-table-column
             label="供应商"
-            width="100">
+            width="180">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-select v-model="scope.row.servvicer" filterable placeholder="请选择">
+                <el-select v-model="scope.row.servicer" filterable placeholder="请选择">
                   <el-option
                     v-for="item in gridData"
                     :key="item.id"
-                    :label="item.ticketno"
-                    :value="item.name">
+                    :label="item.name"
+                    :value="item.requestid">
                   </el-option>
                 </el-select>
               </template>
-              <span v-else>{{ scope.row.servvicername }}</span>
+              <span v-else>{{ scope.row.servicername }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -505,11 +505,23 @@ export default {
         type: 'success'
       })
     },
+    getservicename(id) {
+      let tname = ''
+      if (this.gridData.length) {
+        this.gridData.map(d => {
+          if (d.requestid === id) {
+            tname = d.name
+          }
+        })
+      }
+      return tname
+    },
     editRow(row) {
       //   warrantydate: '', // 质保期
       //   supplydate: '', // 交货日期
-      row.warrantydate = parseTime(row.warrantydate)
-      row.supplydate = parseTime(row.supplydate)
+      row.warrantydate = parseTime(row.warrantydate, '{y}-{m}-{d}')
+      row.supplydate = parseTime(row.supplydate, '{y}-{m}-{d}')
+      row.servicername = this.getservicename(row.servicer)
       row.edit = false
     },
     goeditrow(index) {
@@ -540,7 +552,8 @@ export default {
           ordernum: '', // 数量
           warrantydate: '', // 质保期
           supplydate: '', // 交货日期
-          memos: '' // 备注
+          memos: '', // 备注
+          edit: true
         }
       )
     },

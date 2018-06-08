@@ -12,18 +12,18 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/csj_login': {
-        // target: 'http://ztbtest.csjscm.com',
+        // target: 'http://192.168.1.208:8082',
         target: 'http://192.168.2.34:10011',
         changeOrigin: true
       },
       '/api': {
         target: 'http://192.168.2.34:10011',
-        // target: 'http://ztbtest.csjscm.com',
+        // target: 'http://192.168.1.208:8082',
         changeOrigin: true,
       },
       '/planapi': {
         target: 'http://192.168.2.34:8082',
-        // target: 'http://ztbtest.csjscm.com',
+        // target: 'http://192.168.1.208:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/planapi': '/'
@@ -31,7 +31,7 @@ module.exports = {
       },
       '/jqmapi': {
         target: 'http://192.168.2.33:8082',
-        // target: 'http://ztbtest.csjscm.com',
+        // target: 'http://192.168.1.208:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/jqmapi': '/'
@@ -39,7 +39,7 @@ module.exports = {
       },
       '/yyjapi': {
         target: 'http://192.168.2.44:8082',
-        // target: 'http://ztbtest.csjscm.com',
+        // target: 'http://192.168.1.208:8082',
         changeOrigin: true,
         pathRewrite: {
           '^/yyjapi': '/'

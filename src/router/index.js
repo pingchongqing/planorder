@@ -24,9 +24,8 @@ import Layout from '../views/layout/Layout'
 export const constantRouterMap = [
   // { path: '/login', component: () => import('@/views/login/index'), hidden: true },
   { path: '/login', redirect: '/csj_login', hidden: true },
-  { path: '/404', component: () => import('@/views/404'), hidden: true },
-  { path: '/401', component: () => import('@/views/401'), hidden: true },
-  { path: '/payresult', component: () => import('@/views/payresult'), hidden: true },
+  { path: '/404', component: _import('404'), hidden: true },
+  { path: '/401', component: _import('401'), hidden: true },
   {
     path: '/',
     component: Layout,
@@ -36,7 +35,7 @@ export const constantRouterMap = [
       name: 'dashboard',
       path: '/dashboard',
       meta: { title: '主页', noCache: true },
-      component: () => import('@/views/dashboard/index')
+      component: _import('dashboard/index')
     }]
   },
   {

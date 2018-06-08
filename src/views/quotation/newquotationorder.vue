@@ -48,88 +48,146 @@
     <div class="itemscont">
       <h3>
         报价单明细
+        <el-button
+          size="mini"
+          type="primary"
+          @click="importEXL">
+          导入Excel
+        </el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          @click="addDetail">
+          新增一行
+        </el-button>
+        <el-button
+          size="mini"
+          type="warning"
+          v-show="multipleSelection.length"
+          @click="delChecked">
+          删除选中
+        </el-button>
       </h3>
       <el-form-item label-width="0" prop="quotationItems">
         <el-table
           :data="planform.quotationItems"
+          @selection-change="handleSelectionChange"
           style="width: 100%"
           border
           max-height="600">
           <el-table-column
-            label="序号"
+            type="selection"
+            fixed="left"
             width="55">
+          </el-table-column>
+          <el-table-column
+            label="序号"
+            width="80">
             <template slot-scope="scope">
-              <span >{{ scope.row.itemno }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.itemno" ></el-input>
+              <span v-else>{{ scope.row.itemno }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="物料名称"
             width="120">
             <template slot-scope="scope">
-              <span>{{ scope.row.materialname }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.materialname" ></el-input>
+              <span v-else>{{ scope.row.materialname }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="品牌"
             width="120">
             <template slot-scope="scope">
-              <span>{{ scope.row.materialtag }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.materialtag" ></el-input>
+              <span v-else>{{ scope.row.materialtag }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="规格"
             width="200">
             <template slot-scope="scope">
-              <span >{{ scope.row.materialrule }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.materialrule" ></el-input>
+              <span v-else>{{ scope.row.materialrule }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="型号"
             width="200">
             <template slot-scope="scope">
-              <span>{{ scope.row.materialsize }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.materialsize" ></el-input>
+              <span v-else>{{ scope.row.materialsize }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="数量"
             width="80">
             <template slot-scope="scope">
-              <span >{{ scope.row.ordernum }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.ordernum" ></el-input>
+              <span v-else>{{ scope.row.ordernum }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="单位"
             width="80">
             <template slot-scope="scope">
-              <span >{{ scope.row.orderunit }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.orderunit" ></el-input>
+              <span v-else>{{ scope.row.orderunit }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="质保期"
-            width="100">
+            width="160">
             <template slot-scope="scope">
-              <span>{{ scope.row.warrantydate }}</span>
+              <el-date-picker
+                v-model="scope.row.warrantydate"
+                type="date"
+                v-if="scope.row.edit"
+                :editable="false"
+                placeholder="选择日期"
+                align="right">
+              </el-date-picker>
+              <span v-else>{{ scope.row.warrantydate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="供货期"
-            width="100">
+            width="160">
             <template slot-scope="scope">
-              <span >{{ scope.row.supplydate }}</span>
+              <el-date-picker
+                v-model="scope.row.supplydate"
+                type="date"
+                v-if="scope.row.edit"
+                :editable="false"
+                placeholder="选择日期"
+                align="right">
+              </el-date-picker>
+              <span v-else>{{ scope.row.supplydate }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="供应商"
+            v-if="$route.params.type==1"
             width="100">
             <template slot-scope="scope">
-              <span >{{ scope.row.servvicername }}</span>
+              <el-select v-model="scope.row.servicer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search" v-if="scope.row.edit">
+                <el-option
+                  v-for="item in gridData"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.requestid">
+                </el-option>
+              </el-select>
+              <span v-else>{{ scope.row.servicername }}</span>
             </template>
           </el-table-column>
           <el-table-column
             label="备注"
             width="100">
             <template slot-scope="scope">
-              <span>{{ scope.row.memos }}</span>
+              <el-input v-if="scope.row.edit" v-model="scope.row.memos" ></el-input>
+              <span v-else>{{ scope.row.memos }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -144,10 +202,11 @@
           <el-table-column
             fixed="right"
             label="操作"
-            width="120">
+            width="180">
             <template slot-scope="scope">
               <el-button v-if="scope.row.edit" type="success" @click="editRow(scope.row)" size="mini" >确定</el-button>
               <el-button v-else @click="goeditrow(scope.$index)" size="mini" >报价</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -179,7 +238,8 @@
       <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
       <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload" v-show="uploadButtonVisible">上传到服务器</el-button>
       <div slot="tip" class="el-upload__tip">只能上传xls和xlsx文件,文件最大不能超过5M。
-        <a class="dlink" href="/static/templet/saletemplet.xls" >下载模板</a>
+        <a class="dlink" href="/static/templet/quocustemplet.xls" v-if="$route.params.type==0">下载模板</a>
+        <a class="dlink" href="/static/templet/quosertemplet.xls" v-if="$route.params.type==1">下载模板</a>
       </div>
     </el-upload>
   </el-dialog>
@@ -226,28 +286,7 @@ export default {
           sumamount: 0, // 金额合计
           ticketno: ''
         },
-        quotationItems: [
-          // {
-          //   amount: 0, // 金额
-          //   categoryno: '', // 分类编号
-          //   custommaterialno: '', // 客户商品编码
-          //   department: '', // 使用部门
-          //   description: '', // 描述
-          //   fromitemno: '', // 计划单号id
-          //   itemno: '', // 序号
-          //   materialname: '', // 商品名称
-          //   materialno: '', // 商品编码
-          //   materialrule: '', // 规格
-          //   materialsize: '', // 型号
-          //   materialtag: '', // 品牌
-          //   memos: '', // 备注
-          //   ordernum: 0, // 数量
-          //   orderunit: '', // 单位
-          //   price: 0, // 价格
-          //   supplydate: '', // 交货日期
-          //   warrantydate: '' // 保质期
-          // }
-        ]
+        quotationItems: []
       },
       rules: {
         quotation: {
@@ -263,7 +302,7 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/quotation/export', // 上传路径
+      uploadUrl: '/planapi/excel/quotation/custom/export', // 上传路径POST /excel/quotation/custom/export
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
@@ -343,6 +382,12 @@ export default {
         })
       })
     }
+    if (parseInt(this.$route.params.type) === 0) {
+      this.uploadUrl = '/planapi/excel/quotation/custom/export'
+    }
+    if (parseInt(this.$route.params.type) === 1) {
+      this.uploadUrl = '/planapi/excel/quotation/service/export'
+    }
     this.getEnquiryInfo()
   },
   methods: {
@@ -352,7 +397,6 @@ export default {
         flag: this.type // 标志（登记客户报价单位0，登记服务商报价单1）
       }).then(
         res => {
-          res.data.quotationItems.forEach(d => { d.edit = true })
           this.planform = res.data
         }
       ).catch(err => {
@@ -450,8 +494,22 @@ export default {
         type: 'success'
       })
     },
+    getservicename(id) {
+      let tname = ''
+      if (this.gridData.length) {
+        this.gridData.map(d => {
+          if (d.ticketno === id) {
+            tname = d.name
+          }
+        })
+      }
+      return tname
+    },
     editRow(row) {
       row.edit = false
+      row.warrantydate = parseTime(row.warrantydate, '{y}-{m}-{d}')
+      row.supplydate = parseTime(row.supplydate, '{y}-{m}-{d}')
+      row.servicername = this.getservicename(row.servicer)
     },
     goeditrow(index) {
       this.planform.quotationItems[index].edit = true
@@ -466,20 +524,30 @@ export default {
     addDetail() {
       this.planform.quotationItems.push(
         {
-          material: '', // 川商品id
-          materialno: '', // 川商品编码
-          materialname: '', // 川商品名称
-          materialrule: '', // 商品规格
-          materialsize: '', // 商品型号
-          materialtag: '', // 品牌
-          orderunit: '', // 单位
-          taxrate: '', // 税率（%）
-          taxamount: '', // 税额
-          ordernum: '', // 数量
-          sendnum: '', // 已发数量
-          saleprice: '', // 销售单价
-          orderamount: '', // 销售金额
-          closedcode: '' // 完成标示
+          id: '',
+          ticketno: '',
+          itemno: '',
+          custommaterialno: '',
+          materialname: '',
+          materialtag: '',
+          materialrule: '',
+          materialsize: '',
+          orderunit: '',
+          description: '',
+          ordernum: '',
+          price: '',
+          amount: '',
+          categoryno: '',
+          memos: '',
+          department: '',
+          warrantydate: '',
+          supplydate: '',
+          fromitemno: '',
+          materialno: '',
+          material: '',
+          servicer: '',
+          servicername: '',
+          edit: true
         }
       )
     },
