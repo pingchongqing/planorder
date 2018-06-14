@@ -63,7 +63,7 @@
         <el-button
           size="mini"
           type="warning"
-          v-show="multipleSelection.length"
+          :disabled="!multipleSelection.length"
           @click="delChecked">
           删除选中
         </el-button>
@@ -94,6 +94,15 @@
             <template slot-scope="scope">
               <el-input v-if="scope.row.edit" v-model="scope.row.materialname" ></el-input>
               <span v-else>{{ scope.row.materialname }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="小分类"
+            v-if="$route.params.type==1"
+            width="120">
+            <template slot-scope="scope">
+              <el-input v-if="scope.row.edit" v-model="scope.row.categoryname" ></el-input>
+              <span v-else>{{ scope.row.categoryname }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -138,7 +147,7 @@
           </el-table-column>
           <el-table-column
             label="质保期"
-            width="160">
+            width="250">
             <template slot-scope="scope">
               <el-date-picker
                 v-model="scope.row.warrantydate"
@@ -153,7 +162,7 @@
           </el-table-column>
           <el-table-column
             label="供货期"
-            width="160">
+            width="250">
             <template slot-scope="scope">
               <el-date-picker
                 v-model="scope.row.supplydate"
@@ -169,7 +178,7 @@
           <el-table-column
             label="供应商"
             v-if="$route.params.type==1"
-            width="100">
+            width="220">
             <template slot-scope="scope">
               <el-select v-model="scope.row.servicer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search" v-if="scope.row.edit">
                 <el-option
@@ -213,7 +222,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">提交报价单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改报价单' : '提交报价单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -247,7 +256,7 @@
 </template>
 
 <script>
-import { addOrUpdateQuotationOrder, GetEnquiryInfo } from '@/api/planorder'
+import { addOrUpdateQuotationOrder, GetEnquiryInfo, GetQuotationDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -302,23 +311,13 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/quotation/custom/export', // 上传路径POST /excel/quotation/custom/export
+      uploadUrl: '/planapi/api/excel/quotation/custom/export', // 上传路径POST /excel/quotation/custom/export
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
       currentRow: {},
       multipleSelection: [],
       submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ],
       enquiryData: []
     }
   },
@@ -337,11 +336,11 @@ export default {
       })
       return total
     },
-    enterprisename() {
+    enterpricename() {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.ticketno === this.planform.quotation.enterprise) {
+          if (d.requestid === this.planform.quotation.enterprise) {
             tname = d.name
           }
         })
@@ -352,7 +351,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.ticketno === this.planform.quotation.customer) {
+          if (d.requestid === this.planform.quotation.customer) {
             tname = d.name
           }
         })
@@ -383,14 +382,37 @@ export default {
       })
     }
     if (parseInt(this.$route.params.type) === 0) {
-      this.uploadUrl = '/planapi/excel/quotation/custom/export'
+      this.uploadUrl = '/planapi/api/excel/quotation/custom/export'
     }
     if (parseInt(this.$route.params.type) === 1) {
-      this.uploadUrl = '/planapi/excel/quotation/service/export'
+      this.uploadUrl = '/planapi/api/excel/quotation/service/export'
     }
-    this.getEnquiryInfo()
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.getEnquiryInfo()
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
   },
   methods: {
+    getDetail() {
+      GetQuotationDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getEnquiryInfo() {
       GetEnquiryInfo({
         ticketno: this.$route.params.enquiryorder,
@@ -413,6 +435,9 @@ export default {
             postData.quotation.customername = this.customername
           }
           postData.quotation.createuser = this.userInfo.truename
+          if (!postData.quotation.enterpricename) {
+            postData.quotation.enterpricename = this.getservicename(postData.quotation.enterprice)
+          }
           postData.quotation.quotationdate = parseTime(this.planform.quotation.quotationdate)
           postData.quotation.sumamount = this.sumamount
           addOrUpdateQuotationOrder(postData).then(
@@ -421,14 +446,17 @@ export default {
               const view = this.visitedViews.filter(v => v.path === this.$route.path)
               if (res.code === '200' && res.data) {
                 this.$confirm('创建报价单成功', '提示', {
-                  confirmButtonText: '继续',
+                  confirmButtonText: '查看详情',
                   cancelButtonText: '关闭',
                   type: 'success'
                 }).then(
                   _ => {
                     this.$store.dispatch('delVisitedViews', view[0]).then(() => {
                       this.$router.push({
-                        name: 'planorderlist'
+                        name: 'quotationorderdetail',
+                        params: {
+                          ticketno: res.data
+                        }
                       })
                     })
                   }
@@ -498,7 +526,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.ticketno === id) {
+          if (d.requestid === id) {
             tname = d.name
           }
         })
@@ -507,8 +535,12 @@ export default {
     },
     editRow(row) {
       row.edit = false
-      row.warrantydate = parseTime(row.warrantydate, '{y}-{m}-{d}')
-      row.supplydate = parseTime(row.supplydate, '{y}-{m}-{d}')
+      if (row.warrantydate) {
+        row.warrantydate = parseTime(new Date(row.warrantydate), '{y}-{m}-{d}')
+      }
+      if (row.supplydate) {
+        row.supplydate = parseTime(new Date(row.supplydate), '{y}-{m}-{d}')
+      }
       row.servicername = this.getservicename(row.servicer)
     },
     goeditrow(index) {
@@ -558,10 +590,7 @@ export default {
       this.multipleSelection = val
     },
     onCancel() {
-      this.planform = {
-        quotation: {},
-        quotationItems: []
-      }
+      this.$router.back()
     },
     handelDialogConfirm() {
       this.dialogTableVisible = false

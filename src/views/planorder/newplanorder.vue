@@ -4,7 +4,12 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="询价方" prop="enquiryOrder.customer">
-          <el-select v-model="planform.enquiryOrder.customer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select
+            v-model="planform.enquiryOrder.customer"
+            filterable
+            clearable
+            @change="customerChange"
+            placeholder="请搜索或选择" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -52,7 +57,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="数量合计">
-          <el-input :value="sumordernum" :disabled="true"></el-input>
+          <el-input :value="sumordernum" :disabled="true" ></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -121,6 +126,16 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="小分类"
+            width="120">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.categoryname"></el-input>
+              </template>
+              <span v-else>{{ scope.row.categoryname }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="品牌"
             width="120">
             <template slot-scope="scope">
@@ -172,7 +187,7 @@
           </el-table-column>
           <el-table-column
             label="质保期"
-            width="100">
+            width="260">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-date-picker
@@ -188,7 +203,7 @@
           </el-table-column>
           <el-table-column
             label="供货期"
-            width="100">
+            width="260">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-date-picker
@@ -243,7 +258,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建计划单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">提交</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -260,6 +275,7 @@
       :limit="1"
       :file-list = "fileList"
       :on-exceed="handleExceed"
+      :data = "uploadData"
       name="myFile"
       :accept="'.xls,.xlsx'"
       :on-change="handelUploadChange"
@@ -268,7 +284,7 @@
       <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
       <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload" v-show="uploadButtonVisible">上传到服务器</el-button>
       <div slot="tip" class="el-upload__tip">只能上传xls和xlsx文件,文件最大不能超过5M。
-        <a class="dlink" href="/static/templet/enquiry.xls" >下载模板</a>
+        <a class="dlink" :href="templetUrl" >下载{{special ? '专用' : ''}}模板</a>
       </div>
     </el-upload>
   </el-dialog>
@@ -276,7 +292,7 @@
 </template>
 
 <script>
-import { addOrUpdateenquiryOrder } from '@/api/planorder'
+import { addOrUpdateenquiryOrder, CompanyTemplet } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -304,7 +320,7 @@ export default {
           checkdate: '', // 审核日期
           checktime: '', // 审核时间
           checkadvice: '', // 审核意见
-          sumordernum: '', // 数量合计
+          sumordernum: 0, // 数量合计
           sumamount: '', // 金额合计
           memos: '', // 备注
           customerorderno: '', // 客户订单号
@@ -316,6 +332,8 @@ export default {
           // {
           //   servicer: '', // 服务商
           //   servicername: '', // 服务商名称
+          //   categoryid:"402881325a5e22c4015a5f7ed3000035", // 分类id
+          //   categoryname:"断路器", //分类名称
           //   itemno: '', // 行号
           //   material: '', // 川商品id
           //   materialno: '', // 川商品编码
@@ -356,19 +374,27 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/enquiryOrder/export', // 上传路径
+      // uploadUrl: '/planapi/api/excel/enquiryOrder/export', // 上传路径
+      uploadUrl: '/planapi/api/excel/equiryOrder/new/export',
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
       multipleSelection: [],
-      submitloading: false
+      submitloading: false,
+      templetUrl: '',
+      special: false
     }
   },
   computed: {
+    uploadData() {
+      return { companyId: this.planform.enquiryOrder.customer }
+    },
     sumordernum() {
       let total = 0
       this.planform.enquiryOrderItems.forEach(item => {
-        total += item.ordernum
+        if (parseFloat(item.ordernum)) {
+          total = total + parseFloat(item.ordernum)
+        }
       })
       return total
     },
@@ -407,15 +433,59 @@ export default {
     parseTime
   },
   created() {
-    if (!this.gridData.length) {
-      this.$store.dispatch('GetGysList')
-    }
+    // if (!this.gridData.length) {
+    //   this.$store.dispatch('GetGysList').then(() => {
+    //     this.planform.enquiryOrder.enterprise = this.companyId
+    //   })
+    // }
+    this.getTemplate()
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
   },
   methods: {
+    getTemplate() {
+      CompanyTemplet().then(
+        res => {
+          console.log(res)
+          this.$store.commit('SET_GYSLIST', res.data)
+          this.planform.enquiryOrder.enterprise = this.companyId
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
+    customerChange(val) {
+      console.log(val)
+      let url = ''
+      this.special = false
+      this.gridData.map(d => {
+        if (d.requestid === val) {
+          url = d.remark
+          if (d.remark) {
+            this.special = true
+          }
+        }
+      })
+      this.templetUrl = url || '/static/templet/enquiry.xls'
+    },
     onSubmit() {
       this.$refs['ruleForm'].validate((valid) => {
         console.log(valid)
         if (valid) {
+          if (this.planform.enquiryOrder.enquirydate.getTime() >= this.planform.enquiryOrder.enquiryenddate.getTime()) {
+            this.$message({
+              message: '询价截止日期不能早于询价日期',
+              type: 'warn'
+            })
+            return false
+          }
           this.submitloading = true
           const view = this.visitedViews.filter(v => v.path === this.$route.path)
           const postData = JSON.parse(JSON.stringify(this.planform))
@@ -427,7 +497,7 @@ export default {
               console.log(res)
               if (res.code === '200' && res.data) {
                 this.$confirm('新建计划单成功！', '提示', {
-                  confirmButtonText: '查看详情',
+                  confirmButtonText: '详情',
                   cancelButtonText: '计划单列表',
                   type: 'success'
                 }).then(
@@ -519,8 +589,12 @@ export default {
     editRow(row) {
       //   warrantydate: '', // 质保期
       //   supplydate: '', // 交货日期
-      row.warrantydate = parseTime(row.warrantydate, '{y}-{m}-{d}')
-      row.supplydate = parseTime(row.supplydate, '{y}-{m}-{d}')
+      if (row.warrantydate) {
+        row.warrantydate = parseTime(new Date(row.warrantydate), '{y}-{m}-{d}')
+      }
+      if (row.supplydate) {
+        row.supplydate = parseTime(new Date(row.supplydate), '{y}-{m}-{d}')
+      }
       row.servicername = this.getservicename(row.servicer)
       row.edit = false
     },
@@ -549,7 +623,7 @@ export default {
           orderunit: '', // 单位
           orderprice: '', // 单价
           orderamount: '', // 金额
-          ordernum: '', // 数量
+          ordernum: 0, // 数量
           warrantydate: '', // 质保期
           supplydate: '', // 交货日期
           memos: '', // 备注
@@ -564,10 +638,7 @@ export default {
       this.multipleSelection = val
     },
     onCancel() {
-      this.planform = {
-        enquiryOrder: {},
-        enquiryOrderItems: []
-      }
+      this.$router.back()
     },
     handelDialogConfirm() {
       this.dialogTableVisible = false

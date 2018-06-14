@@ -1,5 +1,23 @@
 <template lang="html">
 <div class="app-container">
+  <sticky :className="'sub-navbar published'" v-if="!(planform.outOrder.status == 1)">
+    <template v-if="fetchSuccess">
+      <template v-if="planform.outOrder.status == -1 || planform.outOrder.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'outOrder')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.outOrder.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'outOrder')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'outOrder')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
+    </template>
+    <template v-else>
+      <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
+    </template>
+  </sticky>
   <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
@@ -122,7 +140,10 @@
 import { OutStoreDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import Sticky from '@/components/Sticky' // 粘性header组件
+import Modify from '@/utils/modify'
 export default {
+  components: { Sticky },
   data() {
     return {
       planform: {
@@ -143,7 +164,7 @@ export default {
           linkaddress: '', // 收货地址
           linkuser: '', // 收货联系人
           linktel: '', // 收货联系电话
-          outOrder: '', // 送货通知单id
+          outorder: '', // 送货通知单id
           closed: '', // 完结标识0未完结1完结
           memos: '', // 备注
           outnum: '', // 实出数量
@@ -169,16 +190,6 @@ export default {
         ]
       },
       submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ],
       fetchSuccess: true
     }
   },
@@ -187,7 +198,8 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow'
     ])
   },
   filters: {
@@ -197,6 +209,7 @@ export default {
     this.getoutOrderDetail()
   },
   methods: {
+    Modify,
     getoutOrderDetail() {
       this.loading = true
       OutStoreDetail({ ticketno: this.$route.params.ticketno }).then(
@@ -213,6 +226,17 @@ export default {
     },
     nextpage(name) {
       this.$router.push({ name })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newoutstore',
+        params: {
+          ticketno: this.planform.outOrder.outnotice
+        },
+        query: {
+          id: this.$route.params.ticketno
+        }
+      })
     }
   }
 }

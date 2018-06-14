@@ -190,6 +190,10 @@ export default {
         {
           name: '供应商直发',
           value: '2'
+        },
+        {
+          name: '自提',
+          value: '3'
         }
       ],
       loading: false
@@ -210,8 +214,7 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
+        case 2: return '预付款'
         default: return ''
       }
     },
@@ -228,13 +231,14 @@ export default {
       switch (parseInt(val)) {
         case 1: return '库发'
         case 2: return '供应商直发'
+        case 3: return '自提'
         default: return ''
       }
     },
     recmethodFilter(val) {
       switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '预付款'
+        case 1: return '货到收款'
+        case 2: return '预收款'
         default: return ''
       }
     },
@@ -283,7 +287,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.forEach(d => {
-          if (d.ticketno === val) {
+          if (d.requestid === val) {
             tname = d.name
           }
         })

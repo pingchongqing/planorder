@@ -138,7 +138,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">创建发货通知单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改出库单' : '创建出库单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import { addOrUpdateOutOrder, getOutNoticeInfo } from '@/api/planorder'
+import { addOrUpdateOutOrder, getOutNoticeInfo, OutStoreDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -240,17 +240,7 @@ export default {
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
-      submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ]
+      submitloading: false
     }
   },
   computed: {
@@ -299,7 +289,11 @@ export default {
     parseTime
   },
   created() {
-    this.getInfo()
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.getInfo()
+    }
     if (!this.revstoreList.length) {
       this.$store.dispatch('GetStoreList')
     }
@@ -307,7 +301,26 @@ export default {
       this.$store.dispatch('GetGysList')
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
+  },
   methods: {
+    getDetail() {
+      OutStoreDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getInfo() {
       getOutNoticeInfo({ ticketno: this.$route.params.ticketno }).then(
         res => {
@@ -417,10 +430,7 @@ export default {
       this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     onCancel() {
-      this.planform = {
-        outOrder: {},
-        outOrderItems: []
-      }
+      this.$router.back()
     }
   }
 }

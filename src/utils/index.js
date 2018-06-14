@@ -12,7 +12,7 @@ export function parseTime(time, cFormat) {
     date = time
   } else {
     if (('' + time).length === 10) time = parseInt(time) * 1000
-    if (time && !time.includes('Z')) time = time.replace(new RegExp(/-/gm), '/')
+    if (time && typeof time === 'string' && !time.includes('Z')) time = time.replace(new RegExp(/-/gm), '/')
     date = new Date(time)
   }
   const formatObj = {

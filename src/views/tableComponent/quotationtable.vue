@@ -19,6 +19,13 @@
       </template>
     </el-table-column>
     <el-table-column
+      label="单据状态"
+      width="120">
+      <template slot-scope="scope">
+        <span >{{ scope.row.status|statusFilter }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
       width="200"
       label="询价企业">
       <template slot-scope="scope">
@@ -40,13 +47,6 @@
       </template>
     </el-table-column>
     <el-table-column
-      label="单据状态"
-      width="120">
-      <template slot-scope="scope">
-        <span >{{ scope.row.status|statusFilter }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column
       label="创建人"
       width="200">
       <template slot-scope="scope">
@@ -62,12 +62,13 @@
     </el-table-column>
     <el-table-column
       label="审核人"
-      width="200">
+      width="120">
       <template slot-scope="scope">
         <span>{{ scope.row.checkuser }}</span>
       </template>
     </el-table-column>
     <el-table-column
+      width="160"
       label="审核日期">
       <template slot-scope="scope">
         <span>{{ scope.row.checkdate }}</span>
@@ -79,23 +80,31 @@
         <span>{{ scope.row.memos }}</span>
       </template>
     </el-table-column>
+    <el-table-column
+      fixed="right"
+      width="150"
+      label="操作">
+      <template slot-scope="scope">
+        <router-link :to="{ name: 'newsaleorder', params: { enquiryorder: scope.row.fromorderno } }"
+          v-if="scope.row.quotationflag === 0 && isallownew && scope.row.status === 1">
+          <el-button size="mini" type="primary">登记销售单</el-button>
+        </router-link>
+        <router-link :to="{ name: 'newpurchaseorder', params: { enquiryorder: scope.row.fromorderno } }"
+          v-if="scope.row.quotationflag === 1 && isallownew && scope.row.status === 1">
+          <el-button size="mini" type="primary">登记采购单</el-button>
+        </router-link>
+      </template>
+    </el-table-column>
   </el-table>
 </template>
 
 <script>
 import { parseTime } from '@/utils'
+import { mapGetters } from 'vuex'
 export default {
   props: ['list', 'loading'],
   filters: {
     parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    },
     statusFilter(val) {
       switch (parseInt(val)) {
         case -1: return '草稿'
@@ -105,6 +114,12 @@ export default {
         default: return ''
       }
     }
+  },
+  computed: {
+    ...mapGetters({
+      isallow: 'isallow',
+      isallownew: 'isallownew'
+    })
   },
   methods: {
     viewRow(row) {

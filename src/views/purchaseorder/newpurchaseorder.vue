@@ -14,13 +14,20 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收货人电话" prop="purchorder.linktel">
-          <el-input type="number" v-model="planform.purchorder.linktel" ></el-input>
+        <el-form-item label="供应商" prop="purchorder.servicer">
+          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in gridData"
+              :key="item.id"
+              :label="item.name"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交货地址" prop="purchorder.receiveaddress">
-          <el-input type="text" v-model="planform.purchorder.receiveaddress" ></el-input>
+        <el-form-item label="合同编号" prop="purchorder.contractno">
+          <el-input v-model="planform.purchorder.contractno"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
@@ -28,6 +35,26 @@
       <el-col :span="8">
         <el-form-item label="收货人" prop="purchorder.linkusername">
           <el-input type="text" v-model="planform.purchorder.linkusername" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="收货人电话" prop="purchorder.linktel">
+          <el-input type="number" v-model="planform.purchorder.linktel" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="收货地址">
+          <el-input v-model="planform.purchorder.receiveaddress" ></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="8">
+        <el-form-item label="付款方式" prop="purchorder.paymethod">
+          <el-select v-model="planform.purchorder.paymethod" placeholder="请选择">
+            <el-option label="货到付款" value="1" ></el-option>
+            <el-option label="预付款" value="2" ></el-option>
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -43,30 +70,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="供应商" prop="purchorder.servicer">
-          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
-            <el-option
-              v-for="item in gridData"
-              :key="item.id"
-              :label="item.name"
-              :value="item.requestid">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="8">
-        <el-form-item label="付款方式" prop="purchorder.paymethod">
-          <el-select v-model="planform.purchorder.paymethod" placeholder="请选择">
-            <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="预付款" value="2" ></el-option>
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="8">
-        <el-form-item label="到达仓库" prop="purchorder.revstore">
-          <el-select v-model="planform.purchorder.revstore" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+        <el-form-item label="到达仓库" prop="purchorder.revstore" v-if="planform.purchorder.deliverway == 1">
+          <el-select v-model="planform.purchorder.revstore" filterable clearable placeholder="到达仓库" prefix-icon="el-icon-search">
             <el-option
               v-for="item in revstoreList"
               :key="item.id"
@@ -99,6 +104,12 @@
         </el-button>
         <el-button
           size="mini"
+          type="primary"
+          @click="addProduct">
+          新增商品
+        </el-button>
+        <el-button
+          size="mini"
           type="warning"
           v-show="multipleSelection.length"
           @click="delChecked">
@@ -119,9 +130,12 @@
           </el-table-column>
           <el-table-column
             label="序号"
-            width="55">
+            width="80">
             <template slot-scope="scope">
-              <span >{{ scope.row.itemno }}</span>
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.itemno"></el-input>
+              </template>
+              <span v-else>{{ scope.row.itemno }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -245,7 +259,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建采购单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改采购单' : '新建采购单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -274,20 +288,36 @@
       </div>
     </el-upload>
   </el-dialog>
+  <el-dialog
+    title="选择商品"
+    :visible.sync="productvisible"
+    center
+    width="80%">
+    <productchoice @subProduct="subProduct" @diClose="diClose"></productchoice>
+  </el-dialog>
 </div>
 </template>
 
 <script>
-import { addOrUpdatePurchaseOrder } from '@/api/planorder'
+import { addOrUpdatePurchaseOrder, PurchorderDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import productchoice from '@/views/tableComponent/product'
 export default {
+  components: {
+    productchoice
+  },
   data() {
     var checkDetail = (rule, value, callback) => {
       if (!value.length) {
         return callback(new Error('招标物品明细不能空'))
       }
       setTimeout(() => {
+        value.forEach(v => {
+          if (!v.orderunit) {
+            return callback(new Error('请输入单位'))
+          }
+        })
         callback()
       }, 300)
     }
@@ -310,6 +340,7 @@ export default {
           sumordernum: '', // 数量合计
           sumfactrecnum: '', // 已收数量
           sumamount: '', // 金额合计
+          contractno: '', // 合同编号
           memos: '', // 备注
           customerorderno: '', // 合同号
           linkusername: '', // 收货联系人
@@ -333,6 +364,7 @@ export default {
           //   material: '', // 川商品id
           //   materialno: '', // 川商品编码
           //   materialname: '', // 川商品名称
+          //   custommaterialno: '',
           //   materialrule: '', // 商品规格
           //   materialsize: '', // 商品型号
           //   materialtag: '', // 品牌
@@ -352,13 +384,16 @@ export default {
             { required: true, message: '请选择到货日期', trigger: 'change' }
           ],
           linktel: [
-            { required: true, message: '收货人电话', trigger: 'change' }
+            { required: true, message: '收货人电话', trigger: 'blur' },
+            { min: 6, max: 15, message: '长度在 6 到 15 个字符', trigger: 'blur' }
           ],
-          receiveaddress: [
-            { required: true, message: '请输入交货地址', trigger: 'blur' }
+          contractno: [
+            { required: true, message: '请输入合同编号', trigger: 'blur' },
+            { min: 3, max: 50, message: '长度在 3 到 50 个字符', trigger: 'blur' }
           ],
           linkusername: [
-            { required: true, message: '请输入收货人', trigger: 'blur' }
+            { required: true, message: '请输入收货人', trigger: 'blur' },
+            { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
           ],
           deliverway: [
             { required: true, message: '请选择交货方式', trigger: 'change' }
@@ -378,7 +413,7 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/purchOrder/export', // 上传路径
+      uploadUrl: '/planapi/api/excel/purchOrder/export', // 上传路径
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
@@ -392,8 +427,13 @@ export default {
         {
           name: '供应商直发',
           value: '2'
+        },
+        {
+          name: '自提',
+          value: '3'
         }
-      ]
+      ],
+      productvisible: false
     }
   },
   computed: {
@@ -441,8 +481,33 @@ export default {
         })
       })
     }
+    if (this.$route.query.id) {
+      this.getDetail()
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
   },
   methods: {
+    addProduct() {
+      this.productvisible = true
+    },
+    getDetail() {
+      PurchorderDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getName(id) {
       let tname = ''
       if (this.gridData.length) {
@@ -468,7 +533,7 @@ export default {
             res => {
               console.log(res)
               if (res.code === '200' && res.data) {
-                this.$confirm('新建销售单成功！', '提示', {
+                this.$confirm('新建采购单成功！', '提示', {
                   confirmButtonText: '继续',
                   cancelButtonText: '关闭',
                   type: 'success'
@@ -572,9 +637,46 @@ export default {
           ordernum: '', // 数量
           factendnum: '', // 已收数量
           taxrate: '', // 税率（%）
-          memos: '' // 备注
+          memos: '', // 备注
+          edit: true
         }
       )
+    },
+    subProduct(products) {
+      products.forEach((cp, index) => {
+        this.planform.purchorderItems.map(pr => {
+          if (cp.requestid === pr.material) {
+            this.$message({
+              message: '编号' + pr.custommaterialno + '商品已存在',
+              type: 'warning'
+            })
+            products = products.splice(index, 1)
+          }
+        })
+      })
+      products.map(product => {
+        const pdata = {
+          material: product.requestid, // 川商品id
+          materialno: product.productno, // 川商品编码
+          custommaterialno: product.productno, // 客户商品编码
+          materialname: product.productname, // 川商品名称
+          materialrule: product.productrule, // 商品规格
+          materialsize: product.productsize, // 商品型号
+          materialtag: product.brandname, // 品牌
+          orderunit: product.invunitname, // 单位
+          orderprice: '', // 单价
+          orderamount: '', // 金额
+          ordernum: '', // 数量
+          factendnum: '', // 已收数量
+          taxrate: '', // 税率（%）
+          memos: '', // 备注
+          edit: true
+        }
+        this.planform.purchorderItems.push(pdata)
+      })
+    },
+    diClose() {
+      this.productvisible = false
     },
     handleCurrentChange(val) {
       this.currentRow = val
@@ -583,10 +685,7 @@ export default {
       this.multipleSelection = val
     },
     onCancel() {
-      this.planform = {
-        purchorder: {},
-        purchorderItems: []
-      }
+      this.$router.back()
     },
     delChecked() {
       const dt = this.planform.purchorderItems.filter(item => {

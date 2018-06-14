@@ -27,19 +27,6 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="询价日期" prop="enquiryOrder.enquirydate">
-          <el-date-picker
-            v-model="planform.enquiryOrder.enquirydate"
-            type="datetime"
-            :editable="false"
-            placeholder="选择日期时间"
-            align="right">
-          </el-date-picker>
-        </el-form-item>
-      </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
           <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
             <!-- <el-option label="全部" value="0" ></el-option> -->
@@ -49,17 +36,35 @@
           </el-select>
         </el-form-item>
       </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="16">
+        <el-form-item label="询价日期" prop="enquiryOrder.postenquirydate">
+          <el-date-picker
+            v-model="planform.enquiryOrder.postenquirydate"
+            type="datetimerange"
+            :editable="false"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期">
+          </el-date-picker>
+        </el-form-item>
+      </el-col>
       <el-col :span="8">
-        <el-form-item label-width="0" >
-          <el-button type="primary" @click="onSubmit">查询</el-button>
-          <el-button @click="onCancel">重置</el-button>
+        <el-form-item label="计划单号">
+          <el-input v-model="planform.enquiryOrder.ticketno" ></el-input>
         </el-form-item>
       </el-col>
     </el-row>
+    <el-form-item label-width="350px" >
+      <el-button type="primary" @click="onSubmit">查询</el-button>
+      <el-button @click="onCancel">重置</el-button>
+    </el-form-item>
     <div class="itemscont">
       <el-table
         :data="list"
         style="width: 100%"
+        v-loading="loading"
         border>
         <el-table-column
           label="单号"
@@ -98,7 +103,7 @@
         </el-table-column>
         <el-table-column
           label="创建人"
-          width="200">
+          width="100">
           <template slot-scope="scope">
             <span>{{ scope.row.createuser }}</span>
           </template>
@@ -110,9 +115,9 @@
             <span>{{ scope.row.createdate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           label="审核人"
-          width="200">
+          width="100">
           <template slot-scope="scope">
             <span>{{ scope.row.checkuser }}</span>
           </template>
@@ -121,6 +126,15 @@
           label="审核日期">
           <template slot-scope="scope">
             <span>{{ scope.row.checkdate }}</span>
+          </template>
+        </el-table-column> -->
+        <el-table-column
+          fixed="right"
+          label="操作">
+          <template slot-scope="scope">
+            <a :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_enquiryorder_schedule.cpt&ticketno=' + scope.row.ticketno" target="_blank">
+              <el-button type="text">查看进度</el-button>
+            </a>
           </template>
         </el-table-column>
       </el-table>
@@ -164,7 +178,9 @@ export default {
           memos: '', // 备注
           customerorderno: '', // 客户订单号
           enquirydate: '', // 询价日期
-          paymethod: '' // 付款方式
+          paymethod: '', // 付款方式
+          postenquirydate: [],
+          loading: false
         }
       },
       list: [],
@@ -189,8 +205,7 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
+        case 2: return '预付款'
         default: return ''
       }
     }
@@ -212,13 +227,21 @@ export default {
     },
     getListData() {
       const postData = this.planform.enquiryOrder
+      if (postData.postenquirydate && postData.postenquirydate.length) {
+        postData.enquirystartsdate = parseTime(postData.postenquirydate[0])
+        postData.enquiryendsdate = parseTime(postData.postenquirydate[1])
+        postData.enquirydate = ''
+      }
+      this.loading = true
       List({ pagesize: this.pagesize, pageindex: this.pageindex, ...postData }).then(res => {
         this.list = res.data.data
         this.total = res.data.total
         this.currentPage = res.data.currentPage
         console.log(res)
+        this.loading = false
       }).catch(err => {
         console.log(err)
+        this.loading = false
       })
     },
     onSubmit() {

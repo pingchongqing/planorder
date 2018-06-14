@@ -58,11 +58,12 @@ export default {
       }
     },
     ...mapGetters([
-      'userInfo'
+      'userInfo',
+      'roles'
     ])
   },
   created() {
-    if (!this.userInfo.openaccount) {
+    if (this.userInfo && this.userInfo.type === 7 && !this.userInfo.openaccount) {
       this.getOpenUserData()
     }
   },

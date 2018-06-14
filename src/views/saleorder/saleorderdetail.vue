@@ -2,7 +2,21 @@
 <div class="app-container">
   <sticky :className="'sub-navbar published'" >
     <template v-if="fetchSuccess">
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newoutnotice')">登记发货通知单</el-button>
+      <el-button  style="margin-left: 10px;" type="success"
+        v-if="planform.saleOrder.status == 1 && isallownew"
+        :disabled = "planform.saleOrder.closed == 1"
+        @click="nextpage('newoutnotice')">登记发货通知单</el-button>
+      <template v-else-if="planform.saleOrder.status == -1 || planform.saleOrder.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'saleOrder')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.saleOrder.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'saleOrder')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'saleOrder')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -11,13 +25,13 @@
   <el-form :model="planform" ref="ruleForm" label-width="80px">
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="状态" prop="saleOrder.status">
-          <el-tag>{{planform.saleOrder.status|statusFilter}}</el-tag>
+        <el-form-item label="销售单号" prop="saleOrder.ticketno">
+          <span>{{planform.saleOrder.ticketno}}</span>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="销售单号" prop="saleOrder.ticketno">
-          <span>{{planform.saleOrder.ticketno}}</span>
+        <el-form-item label="状态" prop="saleOrder.status">
+          <el-tag>{{planform.saleOrder.status|statusFilter}}</el-tag>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -45,13 +59,18 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="付款方式" prop="saleOrder.recmethod">
+        <el-form-item label="收款方式" prop="saleOrder.recmethod">
           {{planform.saleOrder.recmethod|paymethodFilter}}
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="交货方式" prop="saleOrder.deliverway">
           {{planform.saleOrder.deliverway|deliverwayFilter}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="合同编号" prop="saleOrder.contractno">
+          {{planform.saleOrder.contractno}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -161,6 +180,7 @@ import { SaleDetailInfo } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { parseTime } from '@/utils'
+import Modify from '@/utils/modify'
 export default {
   components: { Sticky },
   data() {
@@ -186,15 +206,17 @@ export default {
       userInfo: 'userInfo',
       visitedViews: 'visitedViews',
       revstoreList: 'storeList',
-      gridData: 'gysList'
+      gridData: 'gysList',
+      isallow: 'isallow',
+      isallownew: 'isallownew'
     })
   },
   filters: {
     parseTime,
     paymethodFilter(val) {
       switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '预付款'
+        case 1: return '货到收款'
+        case 2: return '预收款'
         default: return ''
       }
     },
@@ -211,6 +233,7 @@ export default {
       switch (parseInt(val)) {
         case 1: return '库发'
         case 2: return '供应商直发'
+        case 3: return '自提'
         default: return ''
       }
     }
@@ -250,6 +273,18 @@ export default {
         name: name,
         params: {
           ticketno: this.$route.params.ticketno
+        }
+      })
+    },
+    Modify,
+    Edit() {
+      this.$router.push({
+        name: 'newsaleorder',
+        params: {
+          enquiryorder: this.planform.saleOrder.enquiryorder
+        },
+        query: {
+          id: this.$route.params.ticketno
         }
       })
     }

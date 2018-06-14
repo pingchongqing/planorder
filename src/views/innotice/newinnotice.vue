@@ -136,7 +136,10 @@
           <el-table-column
             label="备注">
             <template slot-scope="scope">
-              <span >{{ scope.row.memos }}</span>
+              <template v-if="scope.row.edit">
+                <el-input v-model="scope.row.memos" ></el-input>
+              </template>
+              <span v-else>{{ scope.row.memos }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -163,7 +166,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">创建发货通知单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改收货通知单' : '创建收货通知单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -171,7 +174,7 @@
 </template>
 
 <script>
-import { addOrUpdateInoticeOrder, PurchorderDetail } from '@/api/planorder'
+import { addOrUpdateInoticeOrder, PurchorderDetail, InNoticeDetail, InNoticeList } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -250,22 +253,12 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/innotice/export', // 上传路径
+      uploadUrl: '/planapi/api/excel/innotice/export', // 上传路径
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
       multipleSelection: [],
-      submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ]
+      submitloading: false
     }
   },
   computed: {
@@ -320,11 +313,42 @@ export default {
     if (!this.gridData.length) {
       this.$store.dispatch('GetGysList')
     }
-    this.getPurchaseInfo()
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.getPurchaseInfo()
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
   },
   methods: {
+    getDetail() {
+      InNoticeDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform.innoticeItems = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+      InNoticeList({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform.innotice = res.data.data[0]
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getPurchaseInfo() {
-      PurchorderDetail({ ticketno: this.$route.params.ticketno }).then(
+      PurchorderDetail({ ticketno: this.$route.params.ticketno, flag: 1 }).then(
         res => {
           console.log(res)
           const resdata = res.data
@@ -345,6 +369,7 @@ export default {
             pushdata.materialtag = d.materialtag
             pushdata.ordernum = d.ordernum
             pushdata.orderunit = d.orderunit
+            pushdata.fromitemid = d.id
             this.planform.innoticeItems.push(pushdata)
           })
           // this.planform = resdata
@@ -407,10 +432,7 @@ export default {
       this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     onCancel() {
-      this.planform = {
-        innotice: {},
-        innoticeItems: []
-      }
+      this.$router.back()
     }
   }
 }

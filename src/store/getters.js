@@ -13,6 +13,12 @@ const getters = {
   permission_routers: state => state.permission.routers,
   addRouters: state => state.permission.addRouters,
   storeList: state => state.app.storeList,
-  gysList: state => state.app.gysData
+  gysList: state => state.app.gysData,
+  isallow: state => {
+    return state.user.roles.includes('service_business_verify')
+  },
+  isallownew: state => {
+    return state.user.roles.includes('service_business_verify') || state.user.roles.includes('service_business')
+  }
 }
 export default getters

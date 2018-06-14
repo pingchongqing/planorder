@@ -2,16 +2,15 @@
 <div class="app-container">
   <sticky :className="'sub-navbar published'" >
     <template v-if="fetchSuccess">
-      <el-button
-        style="margin-left: 10px;"
-        v-loading="downloadLoading"
-        @click="exportExcel">
-        导出询价单
-      </el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
+      <a :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_enquiryorder.cpt&ticketno=' + $route.params.ticketno" target="_blank">
+        <el-button style="margin-left: 10px;" v-loading="downloadLoading">
+          导出询价单
+        </el-button>
+      </a>
+      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记供应商报价单</el-button>
       <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '0')">登记给客户报价单</el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记给服务商报价单</el-button>
+      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
+      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -23,6 +22,11 @@
       <el-form :model="planform" ref="ruleForm" label-width="120px">
         <el-row :gutter="20">
           <el-col :span="8">
+            <el-form-item label="计划单号">
+              {{planform.enquiryOrder.ticketno}}
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
             <el-form-item label="询价方" prop="enquiryOrder.customer">
               {{planform.enquiryOrder.customname}}
             </el-form-item>
@@ -30,11 +34,6 @@
           <el-col :span="8">
             <el-form-item label="报价方" prop="enquiryOrder.enterprise">
               {{planform.enquiryOrder.enterprisename}}
-            </el-form-item>
-          </el-col>
-          <el-col :span="8">
-            <el-form-item label="询价日期" prop="enquiryOrder.enquirydate">
-              {{planform.enquiryOrder.enquirydate|parseTime}}
             </el-form-item>
           </el-col>
         </el-row>
@@ -56,6 +55,11 @@
           </el-col>
         </el-row>
         <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="询价日期" prop="enquiryOrder.enquirydate">
+              {{planform.enquiryOrder.enquirydate|parseTime}}
+            </el-form-item>
+          </el-col>
           <el-col :span="8">
             <el-form-item label="报价截止日期">
               {{planform.enquiryOrder.enquiryenddate}}
@@ -95,6 +99,13 @@
                     <el-input class="edit-input" size="small" v-model="scope.row.materialname"></el-input>
                   </template>
                   <span v-else>{{ scope.row.materialname }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="小分类"
+                width="120">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.categoryname }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -286,8 +297,7 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
+        case 2: return '预付款'
         default: return ''
       }
     }
@@ -335,7 +345,7 @@ export default {
           console.log(res)
           this.planform = res.data
           // 获取供应商报价
-          this.getfromservicelist({ enterprise: this.planform.enquiryOrder.enterprise, fromorderno: this.planform.enquiryOrder.ticketno }, 'fromservicelist')
+          this.getfromservicelist({ customer: this.planform.enquiryOrder.enterprise, fromorderno: this.planform.enquiryOrder.ticketno }, 'fromservicelist')
           // 获取给客户报价
           this.getfromservicelist({ customer: this.planform.enquiryOrder.customer, fromorderno: this.planform.enquiryOrder.ticketno }, 'tocustomerlist')
           // 获取采购单
@@ -353,9 +363,16 @@ export default {
         enquiryorder: this.$route.params.ticketno
       }
       if (type) params.type = type
+      let query = {}
+      if (name === 'newsaleorder') {
+        query = {
+          customer: this.planform.enquiryOrder.customer
+        }
+      }
       this.$router.push({
         name: name,
-        params: params
+        params: params,
+        query: query
       })
     },
     formatJson(filterVal, jsonData) {
@@ -368,32 +385,33 @@ export default {
       }))
     },
     exportExcel() {
-      this.$prompt('请输入导出的表格名称', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /\w/,
-        inputErrorMessage: '表格命名不规范'
-      }).then(({ value }) => {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['物料名称', '品牌', '规格', '型号', '数量', '单位', '质保期', '供货期', '供应商', '备注']
-          const filterVal = ['materialname', 'materialtag', 'materialrule', 'materialsize', 'ordernum', 'orderunit', 'warrantydate', 'supplydate', 'servicername', 'memos']
-          const list = this.planform.enquiryOrderItems
-          const data = this.formatJson(filterVal, list)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: value,
-            autoWidth: true
-          })
-          this.downloadLoading = false
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消导出'
-        })
-      })
+      // this.$prompt('请输入导出的表格名称', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   inputPattern: /\w/,
+      //   inputErrorMessage: '表格命名不规范'
+      // }).then(({ value }) => {
+      //   this.downloadLoading = true
+      //   import('@/vendor/Export2Excel').then(excel => {
+      //     const tHeader = ['物料名称', '品牌', '规格', '型号', '数量', '单位', '质保期', '供货期', '供应商', '备注']
+      //     const filterVal = ['materialname', 'materialtag', 'materialrule', 'materialsize', 'ordernum', 'orderunit', 'warrantydate', 'supplydate', 'servicername', 'memos']
+      //     const list = this.planform.enquiryOrderItems
+      //     const data = this.formatJson(filterVal, list)
+      //     excel.export_json_to_excel({
+      //       header: tHeader,
+      //       data,
+      //       filename: value,
+      //       autoWidth: true
+      //     })
+      //     this.downloadLoading = false
+      //   })
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '取消导出'
+      //   })
+      // })
+      // location.href = "http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_enquiryorder.cpt&ticketno=" + this.$route.params.ticketno
     }
   }
 }

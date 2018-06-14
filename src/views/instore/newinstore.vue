@@ -115,7 +115,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="出库数量"
+            label="入库数量"
             fixed="right"
             width="200">
             <template slot-scope="scope">
@@ -138,7 +138,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">创建发货通知单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改入库单' : '创建入库单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import { addOrUpdateInOrder, InNoticeDetail, InNoticeList } from '@/api/planorder'
+import { addOrUpdateInOrder, InNoticeDetail, InNoticeList, InStoreDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -235,17 +235,7 @@ export default {
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
-      submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ]
+      submitloading: false
     }
   },
   computed: {
@@ -294,7 +284,11 @@ export default {
     parseTime
   },
   created() {
-    this.getInfo()
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.getInfo()
+    }
     if (!this.revstoreList.length) {
       this.$store.dispatch('GetStoreList')
     }
@@ -302,9 +296,28 @@ export default {
       this.$store.dispatch('GetGysList')
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
+  },
   methods: {
+    getDetail() {
+      InStoreDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getInfo() {
-      InNoticeDetail({ ticketno: this.$route.params.ticketno }).then(
+      InNoticeDetail({ ticketno: this.$route.params.ticketno, flag: 1 }).then(
         res => {
           console.log(res)
           const resdata = res.data
@@ -320,7 +333,7 @@ export default {
               materialsize,
               materialtag,
               orderunit,
-              id: fromitemno
+              id: fromitemid
             } = d
             this.planform.inorderItems.push({
               edit: true,
@@ -335,7 +348,7 @@ export default {
               materialtag,
               orderunit,
               innum: backnum,
-              fromitemno
+              fromitemid
             })
           })
         }
@@ -449,10 +462,7 @@ export default {
       this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     onCancel() {
-      this.planform = {
-        inorder: {},
-        inorderItems: []
-      }
+      this.$router.back()
     }
   }
 }

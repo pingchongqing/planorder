@@ -58,7 +58,11 @@ const user = {
         getInfo().then(response => {
           console.log(response)
           const data = response.data
-          commit('SET_ROLES', [data.type.toString() + data.sale + data.purchase])
+          let etprole = []
+          if (data.type && data.sale && data.purchase) {
+            etprole = [data.type.toString() + data.sale + data.purchase]
+          }
+          commit('SET_ROLES', [...etprole, ...data.roles])
           commit('SET_NAME', data.truename)
           commit('SET_AVATAR', '/static/img/401.089007e.gif')
           commit('SET_COMPANY', data.companyname)

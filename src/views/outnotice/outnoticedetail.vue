@@ -2,7 +2,20 @@
 <div class="app-container">
   <sticky :className="'sub-navbar published'" >
     <template v-if="fetchSuccess">
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newoutstore')">登记出库单</el-button>
+      <el-button  style="margin-left: 10px;" type="success"
+        :disabled = "deliverway == 1 || planform.outNotice.closed == 1"
+        v-if="planform.outNotice.status == 1 && isallownew"  @click="nextpage('newoutstore')">登记出库单</el-button>
+      <template v-else-if="planform.outNotice.status == -1 || planform.outNotice.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'outNotice')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.outNotice.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'outNotice')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'outNotice')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -11,6 +24,11 @@
   <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
+        <el-form-item label="发货通知单号" prop="outNotice.ticketno">
+          {{planform.outNotice.ticketno}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
         <el-form-item label="收货企业" prop="outNotice.enterprise">
           {{planform.outNotice.enterprisename}}
         </el-form-item>
@@ -18,11 +36,6 @@
       <el-col :span="8">
         <el-form-item label="销售订单号" prop="outNotice.saleorder">
           {{planform.outNotice.saleorder}}
-        </el-form-item>
-      </el-col>
-      <el-col :span="8">
-        <el-form-item label="发货仓库" prop="outNotice.outstore">
-          {{planform.outNotice.outstorename}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -57,6 +70,13 @@
       <el-col :span="8">
         <el-form-item label="备注" >
           {{planform.outNotice.memos}}
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="8">
+        <el-form-item label="发货仓库" prop="outNotice.outstore">
+          {{planform.outNotice.outstorename}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -142,10 +162,11 @@
 </template>
 
 <script>
-import { OutNoticeDetail } from '@/api/planorder'
+import { OutNoticeDetail, SaleDetailInfo } from '@/api/planorder'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import Modify from '@/utils/modify'
 export default {
   components: { Sticky },
   data() {
@@ -196,16 +217,7 @@ export default {
       gridData: [],
       gridLoading: false,
       submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ],
+      deliverway: '',
       revstoreList: [],
       fetchSuccess: true
     }
@@ -215,7 +227,9 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow',
+      'isallownew'
     ])
   },
   filters: {
@@ -225,6 +239,17 @@ export default {
     this.getOutNoticeDetail()
   },
   methods: {
+    Modify,
+    getPurchaseDetail() {
+      SaleDetailInfo({ ticketno: this.planform.outNotice.saleorder }).then(
+        res => {
+          console.log(res)
+          this.deliverway = res.data.saleOrder.deliverway
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getOutNoticeDetail() {
       this.loading = true
       OutNoticeDetail({ ticketno: this.$route.params.ticketno }).then(
@@ -232,6 +257,7 @@ export default {
           console.log(res)
           this.loading = false
           this.planform = res.data
+          this.getPurchaseDetail()
         }
       ).catch(err => {
         console.log(err)
@@ -241,6 +267,17 @@ export default {
     },
     nextpage(name) {
       this.$router.push({ name })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newoutnotice',
+        params: {
+          ticketno: this.planform.outNotice.saleorder
+        },
+        query: {
+          id: this.$route.params.ticketno
+        }
+      })
     }
   }
 }

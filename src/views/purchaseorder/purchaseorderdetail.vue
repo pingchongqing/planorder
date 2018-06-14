@@ -2,8 +2,21 @@
 <div class="app-container">
   <sticky :className="'sub-navbar published'" >
     <template v-if="fetchSuccess">
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newinnotice')">登记收货通知单</el-button>
-      <el-button  style="margin-left: 10px;" type="warning"  @click="delpurchorder">删除</el-button>
+      <el-button  style="margin-left: 10px;" type="success"
+        v-if="planform.purchorder.status == 1 && isallownew"
+        :disabled = "planform.purchorder.closed == 1"  
+        @click="nextpage('newinnotice')">登记收货通知单</el-button>
+      <template v-else-if="planform.purchorder.status == -1 || planform.purchorder.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'purchorder')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.purchorder.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'purchorder')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'purchorder')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -12,6 +25,11 @@
   <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
+        <el-form-item label="采购订单号" >
+          {{planform.purchorder.ticketno}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
         <el-form-item label="计划到货日期" prop="purchorder.planarrivedate">
           {{planform.purchorder.planarrivedate}}
         </el-form-item>
@@ -19,11 +37,6 @@
       <el-col :span="8">
         <el-form-item label="收货人电话" prop="purchorder.linktel">
           {{planform.purchorder.linktel}}
-        </el-form-item>
-      </el-col>
-      <el-col :span="8">
-        <el-form-item label="交货地址" prop="purchorder.receiveaddress">
-          {{planform.purchorder.receiveaddress}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -58,6 +71,18 @@
       <el-col :span="8">
         <el-form-item label="来源计划单号" prop="purchorder.ticketno">
           {{planform.purchorder.enquiryorder}}
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="8">
+        <el-form-item label="交货地址" prop="purchorder.receiveaddress">
+          {{planform.purchorder.receiveaddress}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="合同编号">
+          {{planform.purchorder.contractno}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -194,6 +219,7 @@
 
 <script>
 import { PurchorderDetail, OrderOperate } from '@/api/planorder'
+import Modify from '@/utils/modify'
 import { mapGetters } from 'vuex'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { parseTime } from '@/utils'
@@ -232,7 +258,9 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow',
+      'isallownew'
     ])
   },
   filters: {
@@ -240,8 +268,7 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
+        case 2: return '预付款'
         default: return ''
       }
     },
@@ -249,6 +276,7 @@ export default {
       switch (parseInt(val)) {
         case 1: return '库发'
         case 2: return '供应商直发'
+        case 3: return '自提'
         default: return ''
       }
     }
@@ -257,6 +285,7 @@ export default {
     this.getDetail()
   },
   methods: {
+    Modify,
     delpurchorder() {
       const view = this.visitedViews.filter(v => v.path === this.$route.path)
       this.$confirm('确定删除吗？', '提示', {
@@ -278,7 +307,7 @@ export default {
       })
     },
     getDetail() {
-      PurchorderDetail({ ticketno: this.$route.params.ticketno, pagesize: 10, pageindex: 1 }).then(
+      PurchorderDetail({ ticketno: this.$route.params.ticketno, flag: 0 }).then(
         res => {
           console.log(res)
           this.planform = res.data
@@ -296,6 +325,17 @@ export default {
       this.$router.push({
         name: name,
         params: params
+      })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newpurchaseorder',
+        params: {
+          enquiryorder: this.planform.purchorder.enquiryorder
+        },
+        query: {
+          id: this.$route.params.ticketno
+        }
       })
     }
   }

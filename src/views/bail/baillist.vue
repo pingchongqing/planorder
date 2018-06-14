@@ -84,7 +84,7 @@
           @click.native.prevent="viewRow(scope.row, scope.$index)"
           type="text"
           size="small">
-          查看详情
+          详情
         </el-button>
       </template>
     </el-table-column>

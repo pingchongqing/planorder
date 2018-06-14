@@ -1,5 +1,23 @@
 <template lang="html">
 <div class="app-container">
+  <sticky :className="'sub-navbar published'" v-if="!(planform.inorder.status == 1)">
+    <template v-if="fetchSuccess">
+      <template v-if="planform.inorder.status == -1 || planform.inorder.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'inorder')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.inorder.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'inorder')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'inorder')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
+    </template>
+    <template v-else>
+      <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
+    </template>
+  </sticky>
   <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
@@ -122,7 +140,10 @@
 import { InStoreDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import Modify from '@/utils/modify'
+import Sticky from '@/components/Sticky' // 粘性header组件
 export default {
+  components: { Sticky },
   data() {
     return {
       planform: {
@@ -164,16 +185,6 @@ export default {
         ]
       },
       submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ],
       fetchSuccess: true
     }
   },
@@ -182,7 +193,8 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow'
     ])
   },
   filters: {
@@ -192,6 +204,7 @@ export default {
     this.getinorderDetail()
   },
   methods: {
+    Modify,
     getinorderDetail() {
       this.loading = true
       InStoreDetail({ ticketno: this.$route.params.ticketno }).then(
@@ -208,6 +221,17 @@ export default {
     },
     nextpage(name) {
       this.$router.push({ name })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newinstore',
+        params: {
+          ticketno: this.planform.inorder.innotice
+        },
+        query: {
+          id: this.$route.params.ticketno
+        }
+      })
     }
   }
 }

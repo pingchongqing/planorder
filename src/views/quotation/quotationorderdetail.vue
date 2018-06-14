@@ -1,8 +1,18 @@
 <template lang="html">
 <div class="app-container">
-  <sticky :className="'sub-navbar published'" >
+  <sticky :className="'sub-navbar published'" v-if="!(planform.quotation.status == 1)">
     <template v-if="fetchSuccess">
-      <el-button  style="margin-left: 10px;" type="warning"  @click="delQuotation">删除</el-button>
+      <template v-if="planform.quotation.status == -1 || planform.quotation.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'quotation')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.quotation.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'quotation')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'quotation')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -10,6 +20,11 @@
   </sticky>
   <el-form :model="planform" ref="ruleForm" label-width="80px">
     <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="报价单号">
+          {{planform.quotation.ticketno}}
+        </el-form-item>
+      </el-col>
       <el-col :span="8">
         <el-form-item label="询价方" prop="quotation.customer">
           {{planform.quotation.customername}}
@@ -184,6 +199,7 @@ import { GetQuotationDetail, OrderOperate } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { parseTime } from '@/utils'
+import Modify from '@/utils/modify'
 export default {
   components: { Sticky },
   data() {
@@ -208,24 +224,18 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow'
     ])
   },
   filters: {
-    parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    }
+    parseTime
   },
   created() {
     this.getDetail()
   },
   methods: {
+    Modify,
     delQuotation() {
       const view = this.visitedViews.filter(v => v.path === this.$route.path)
       this.$confirm('确定删除吗？', '提示', {
@@ -265,6 +275,18 @@ export default {
       this.$router.push({
         name: name,
         params: params
+      })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newquotationorder',
+        params: {
+          enquiryorder: this.planform.quotation.fromorderno,
+          type: this.planform.quotation.quotationflag
+        },
+        query: {
+          id: this.$route.params.ticketno
+        }
       })
     }
   }

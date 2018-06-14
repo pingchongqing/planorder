@@ -43,7 +43,7 @@ export function addOrUpdateSaleOrder(data) {
 // 新增采购单
 export function addOrUpdatePurchaseOrder(data) {
   return request({
-    url: '/jqmapi/api/purchorder/addOrUpdatePurchaseOrder',
+    url: '/yyjapi/api/purchorder/addOrUpdatePurchaseOrder',
     method: 'post',
     data: data
   })
@@ -260,6 +260,33 @@ export function addOrUpdateInOrder(data) {
 export function InStoreDetail(data) {
   return request({
     url: '/yyjapi/api/inorder/getinorder',
+    method: 'post',
+    data: data
+  })
+}
+
+// 库存查询 POST /api/stock/getDetail
+export function StockList(data) {
+  return request({
+    url: '/jqmapi/api/stock/getDetail',
+    method: 'post',
+    data: data
+  })
+}
+
+// api/modelExcel/getModelData 公司模板
+export function CompanyTemplet(data) {
+  return request({
+    url: '/planapi/api/modelExcel/getModelData',
+    method: 'post',
+    data: data
+  })
+}
+
+// 获取商品
+export function GetProduct(data) {
+  return request({
+    url: '/yyjapi/api/ufproduct/getufproduct',
     method: 'post',
     data: data
   })

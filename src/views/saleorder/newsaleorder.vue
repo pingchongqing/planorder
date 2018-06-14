@@ -57,12 +57,17 @@
     </el-row>
     <el-row>
       <el-col :span="8">
-        <el-form-item label="付款方式" prop="saleOrder.recmethod">
+        <el-form-item label="收款方式" prop="saleOrder.recmethod">
           <el-select v-model="planform.saleOrder.recmethod" placeholder="请选择">
             <!-- <el-option label="全部" value="0" ></el-option> -->
-            <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="预付款" value="2" ></el-option>
+            <el-option label="货到收款" value="1" ></el-option>
+            <el-option label="预收款" value="2" ></el-option>
           </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="合同编号" prop="saleOrder.contractno">
+          <el-input  v-model="planform.saleOrder.contractno"></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -108,9 +113,12 @@
           </el-table-column>
           <el-table-column
             label="序号"
-            width="55">
+            width="80">
             <template slot-scope="scope">
-              <span >{{ scope.$index+1 }}</span>
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.itemno"></el-input>
+              </template>
+              <span v-else>{{ scope.row.itemno }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -234,7 +242,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">新建销售单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改销售单' : '新建销售单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -267,7 +275,7 @@
 </template>
 
 <script>
-import { addOrUpdateSaleOrder } from '@/api/planorder'
+import { addOrUpdateSaleOrder, SaleDetailInfo } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -277,6 +285,11 @@ export default {
         return callback(new Error('招标物品明细不能空'))
       }
       setTimeout(() => {
+        value.forEach(v => {
+          if (!v.orderunit) {
+            return callback(new Error('请输入单位'))
+          }
+        })
         callback()
       }, 300)
     }
@@ -284,12 +297,13 @@ export default {
       planform: {
         saleOrder: {
           ticketno: '', // 订单号
-          customer: '', // 客户id
+          customer: this.$route.query.customer, // 客户id
           customername: '', // 客户名称
           planarrivedate: '', // 计划收货日期
           sumordernum: '', // 数量
           sumorderamount: '', // 金额
           sumsendnum: '', // 已发数量
+          contractno: '', // 合同编号
           status: '', // 单据状态 --1（草稿） 0（待审核） 1(确认通过) -2（ 驳回 ）
           createuser: '', // 创建人
           createdate: '', // 创建日期
@@ -343,6 +357,9 @@ export default {
           receiveaddress: [
             { required: true, message: '请输入交货地址', trigger: 'blur' }
           ],
+          contractno: [
+            { required: true, message: '请输入合同编号', trigger: 'blur' }
+          ],
           linkusername: [
             { required: true, message: '请输入收货人', trigger: 'blur' }
           ],
@@ -361,7 +378,7 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/saleOrder/export', // 上传路径
+      uploadUrl: '/planapi/api/excel/saleOrder/export', // 上传路径
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
@@ -375,8 +392,13 @@ export default {
         {
           name: '供应商直发',
           value: '2'
+        },
+        {
+          name: '自提',
+          value: '3'
         }
-      ]
+      ],
+      fetchSuccess: true
     }
   },
   computed: {
@@ -398,7 +420,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.ticketno === this.planform.saleOrder.enterprise) {
+          if (d.requestid === this.planform.saleOrder.enterprise) {
             tname = d.name
           }
         })
@@ -409,7 +431,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.map(d => {
-          if (d.ticketno === this.planform.saleOrder.customer) {
+          if (d.requestid === this.planform.saleOrder.customer) {
             tname = d.name
           }
         })
@@ -439,8 +461,36 @@ export default {
         })
       })
     }
+    if (this.$route.query.id) {
+      this.getDetail()
+    }
+    this.getplanInfo()
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
   },
   methods: {
+    getplanInfo() {
+
+    },
+    getDetail() {
+      SaleDetailInfo({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+          this.fetchSuccess = true
+        }
+      ).catch(err => {
+        console.log(err)
+        this.fetchSuccess = false
+      })
+    },
     onSubmit() {
       this.$refs['ruleForm'].validate((valid) => {
         console.log(valid)
@@ -457,7 +507,7 @@ export default {
               console.log(res)
               if (res.code === '200' && res.data) {
                 this.$confirm('新建销售单成功！', '提示', {
-                  confirmButtonText: '查看详情',
+                  confirmButtonText: '详情',
                   cancelButtonText: '关闭',
                   type: 'success'
                 }).then(
@@ -573,10 +623,7 @@ export default {
       this.multipleSelection = val
     },
     onCancel() {
-      this.planform = {
-        saleOrder: {},
-        saleOrderItems: []
-      }
+      this.$router.back()
     },
     handelDialogConfirm() {
       this.dialogTableVisible = false

@@ -168,7 +168,7 @@
       </el-form-item>
     </div>
     <el-form-item label-width="0">
-      <el-button type="primary" @click="onSubmit" v-loading="submitloading">创建发货通知单</el-button>
+      <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改发货通知单' : '创建发货通知单'}}</el-button>
       <el-button @click="onCancel">取消</el-button>
     </el-form-item>
   </el-form>
@@ -176,7 +176,7 @@
 </template>
 
 <script>
-import { addOrUpdateOutNotice, GetSaleOrderInfo } from '@/api/planorder'
+import { addOrUpdateOutNotice, GetSaleOrderInfo, OutNoticeDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 export default {
@@ -256,24 +256,14 @@ export default {
         ]
       },
       dialogVisible: false,
-      uploadUrl: '/planapi/excel/outNotice/export', // 上传路径
+      uploadUrl: '/planapi/api/excel/outNotice/export', // 上传路径
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
       gridLoading: false,
       currentRow: {},
       multipleSelection: [],
-      submitloading: false,
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ]
+      submitloading: false
     }
   },
   computed: {
@@ -322,7 +312,11 @@ export default {
     parseTime
   },
   created() {
-    this.getSaleInfo()
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.getSaleInfo()
+    }
     if (!this.revstoreList.length) {
       this.$store.dispatch('GetStoreList')
     }
@@ -330,7 +324,30 @@ export default {
       this.$store.dispatch('GetGysList')
     }
   },
+  beforeRouteLeave(to, from, next) {
+    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      next()
+    }).catch(() => {})
+  },
   methods: {
+    getDetail() {
+      OutNoticeDetail({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          const resdata = res.data
+          resdata.outNoticeItems.forEach(d => {
+            d.backnum = d.ordernum
+          })
+          this.planform = resdata
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
     getSaleInfo() {
       GetSaleOrderInfo({ ticketno: this.$route.params.ticketno }).then(
         res => {
@@ -411,10 +428,7 @@ export default {
       this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     onCancel() {
-      this.planform = {
-        outNotice: {},
-        outNoticeItems: []
-      }
+      this.$router.back()
     }
   }
 }

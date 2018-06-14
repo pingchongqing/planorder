@@ -1,8 +1,20 @@
 <template lang="html">
 <div class="app-container">
-  <el-form :model="planform" ref="ruleForm" label-width="80px">
+  <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
-      <el-col :span="10">
+      <el-col :span="10" v-if="$route.name === 'serverquotationorderlist'">
+        <el-form-item label="报价企业" prop="quotation.enterprice">
+          <el-select v-model="planform.quotation.enterprice" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in saleData"
+              :key="item.id"
+              :label="item.name"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="10" v-else>
         <el-form-item label="询价企业" prop="quotation.customer">
           <el-select v-model="planform.quotation.customer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
             <el-option
@@ -47,7 +59,7 @@
       </el-col>
     </el-row>
     <el-row :gutter="20">
-      <el-col :span="10">
+      <el-col :span="8">
         <el-form-item label="单据状态" prop="quotation.status">
           <el-select v-model="planform.quotation.status" clearable placeholder="请选择">
             <el-option
@@ -59,7 +71,12 @@
           </el-select>
         </el-form-item>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="8">
+        <el-form-item label="关联计划单">
+          <el-input v-model="planform.quotation.fromorderno"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
         <el-form-item label-width="80px" >
           <el-button type="primary" @click="onSubmit">查询</el-button>
           <el-button @click="onCancel">重置</el-button>
@@ -137,6 +154,9 @@ export default {
     }
   },
   computed: {
+    saleData() {
+      return this.gridData.filter(d => d.sale === 1)
+    },
     ...mapGetters({
       company: 'company',
       companyId: 'companyId',
@@ -148,14 +168,6 @@ export default {
   },
   filters: {
     parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    },
     statusFilter(val) {
       switch (parseInt(val)) {
         case -1: return '草稿'
@@ -183,15 +195,20 @@ export default {
     },
     getListData() {
       const postData = this.planform.quotation
-      if (postData.quotationdate.length) {
-        postData.quotationstartdate = postData.quotationdate[0]
-        postData.quotationenddate = postData.quotationdate[1]
+      if (postData.quotationdate && postData.quotationdate.length) {
+        postData.quotationstartdate = parseTime(postData.quotationdate[0])
+        postData.quotationenddate = parseTime(postData.quotationdate[1])
         postData.quotationdate = ''
       }
-      if (postData.createdate.length) {
-        postData.createstartdate = postData.createdate[0]
-        postData.createenddate = postData.createdate[1]
+      if (postData.createdate && postData.createdate.length) {
+        postData.createstartdate = parseTime(postData.createdate[0])
+        postData.createenddate = parseTime(postData.createdate[1])
         postData.createdate = ''
+      }
+      if (this.$route.name === 'customerquotationorderlist') {
+        postData.quotationflag = '0'
+      } else if (this.$route.name === 'serverquotationorderlist') {
+        postData.quotationflag = '1'
       }
       this.loading = true
       GetQuotationList({ pagesize: this.pagesize, pageindex: this.pageindex, ...postData }).then(res => {

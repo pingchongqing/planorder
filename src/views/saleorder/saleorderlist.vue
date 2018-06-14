@@ -46,11 +46,11 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="付款方式" prop="saleOrder.recmethod">
+        <el-form-item label="收款方式" prop="saleOrder.recmethod">
           <el-select v-model="planform.saleOrder.recmethod" clearable placeholder="请选择">
             <!-- <el-option label="全部" value="0" ></el-option> -->
-            <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="预付款" value="2" ></el-option>
+            <el-option label="货到收款" value="1" ></el-option>
+            <el-option label="预收款" value="2" ></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -184,38 +184,7 @@ export default {
     })
   },
   filters: {
-    parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    },
-    statusFilter(val) {
-      switch (parseInt(val)) {
-        case -1: return '草稿'
-        case 0: return '待审核'
-        case 1: return '确认通过'
-        case -2: return '驳回'
-        default: return ''
-      }
-    },
-    deliverwayFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '库发'
-        case 2: return '供应商直发'
-        default: return ''
-      }
-    },
-    recmethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '预付款'
-        default: return ''
-      }
-    }
+    parseTime
   },
   created() {
     if (!this.gridData.length) {
@@ -247,7 +216,7 @@ export default {
       let tname = ''
       if (this.gridData.length) {
         this.gridData.forEach(d => {
-          if (d.ticketno === val) {
+          if (d.requestid === val) {
             tname = d.name
           }
         })
@@ -257,7 +226,7 @@ export default {
     getListData() {
       this.loading = true
       const postData = this.planform.saleOrder
-      if (postData.planarrivedate.length) {
+      if (postData.planarrivedate && postData.planarrivedate.length) {
         postData.planarrivestartdate = postData.planarrivedate[0]
         postData.planarriveenddate = postData.planarrivedate[1]
         postData.planarrivedate = ''

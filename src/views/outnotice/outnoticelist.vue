@@ -49,23 +49,60 @@
       <el-button @click="onCancel">重置</el-button>
     </el-form-item>
     <div class="itemscont">
+      <h3>
+        <span>订单列表</span>
+        <template v-if="printno">
+          <a
+            :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_delivery_BatchPrint.cpt&ticketno=' + printno"
+            target="_blank">
+            <el-button style="margin-left: 10px;"
+              size="mini">
+              打印选中
+            </el-button>
+          </a>
+          <el-button style="margin-left: 10px;"
+            @click="cancelCheck"
+            size="mini">
+            取消选中
+          </el-button>
+        </template>
+        <template v-else>
+          <el-button style="margin-left: 10px;"
+            size="mini"
+            disabled>
+            打印选中
+          </el-button>
+          <el-button style="margin-left: 10px;"
+            size="mini"
+            disabled>
+            取消选中
+          </el-button>
+        </template>
+      </h3>
       <el-table
         :data="list"
         style="width: 100%"
         v-loading="loading"
+        ref="multipleTable"
         border
+        @selection-change="handleSelectionChange"
         max-height="600">
+        <el-table-column
+          type="selection"
+          fixed="left"
+          width="55">
+        </el-table-column>
         <el-table-column
           label="发货通知单号"
           fixed="left"
-          width="150">
+          width="180">
           <template slot-scope="scope">
             <el-button type="text" @click="nextpage(scope.row)">{{ scope.row.ticketno }}</el-button>
           </template>
         </el-table-column>
         <el-table-column
           label="关联销售单号"
-          width="150">
+          width="180">
           <template slot-scope="scope">
             <el-button type="text" @click="nextsalepage(scope.row)">{{ scope.row.saleorder }}</el-button>
           </template>
@@ -231,6 +268,7 @@ export default {
       pageindex: 1,
       total: 0,
       currentPage: 1,
+      multipleSelection: [],
       deliverway: [
         {
           name: '库发',
@@ -239,12 +277,31 @@ export default {
         {
           name: '供应商直发',
           value: '2'
+        },
+        {
+          name: '自提',
+          value: '3'
         }
       ],
       loading: false
     }
   },
   computed: {
+    printno() {
+      const str = []
+      this.multipleSelection.map(row => {
+        if (row.closed === 1) {
+          this.$message({
+            message: row.ticketno + '已经完结,不支持打印',
+            type: 'warning'
+          })
+          this.$refs.multipleTable.toggleRowSelection(row)
+        } else {
+          str.push(row.ticketno)
+        }
+      })
+      return str.toString()
+    },
     ...mapGetters({
       company: 'company',
       companyId: 'companyId',
@@ -256,34 +313,12 @@ export default {
   },
   filters: {
     parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    },
     statusFilter(val) {
       switch (parseInt(val)) {
         case -1: return '草稿'
         case 0: return '待审核'
         case 1: return '确认通过'
         case -2: return '驳回'
-        default: return ''
-      }
-    },
-    deliverwayFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '库发'
-        case 2: return '供应商直发'
-        default: return ''
-      }
-    },
-    recmethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '预付款'
         default: return ''
       }
     }
@@ -295,6 +330,12 @@ export default {
     this.getListData()
   },
   methods: {
+    cancelCheck() {
+      this.$refs.multipleTable.clearSelection()
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
     getName(id) {
       let tname = ''
       if (this.gridData.length) {

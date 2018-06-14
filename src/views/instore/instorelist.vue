@@ -58,14 +58,14 @@
         <el-table-column
           label="入库单号"
           fixed="left"
-          width="150">
+          width="180">
           <template slot-scope="scope">
             <el-button type="text" @click="nextpage(scope.row)">{{ scope.row.ticketno }}</el-button>
           </template>
         </el-table-column>
         <el-table-column
           label="收货通知单号"
-          width="150">
+          width="180">
           <template slot-scope="scope">
             <el-button type="text" @click="nextpurchasepage(scope.row)">{{ scope.row.innotice }}</el-button>
           </template>
@@ -211,6 +211,10 @@ export default {
         {
           name: '供应商直发',
           value: '2'
+        },
+        {
+          name: '自提',
+          value: '3'
         }
       ],
       loading: false
@@ -228,34 +232,12 @@ export default {
   },
   filters: {
     parseTime,
-    paymethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '现金付款'
-        case 3: return '预付款'
-        default: return ''
-      }
-    },
     statusFilter(val) {
       switch (parseInt(val)) {
         case -1: return '草稿'
         case 0: return '待审核'
         case 1: return '确认通过'
         case -2: return '驳回'
-        default: return ''
-      }
-    },
-    deliverwayFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '库发'
-        case 2: return '供应商直发'
-        default: return ''
-      }
-    },
-    recmethodFilter(val) {
-      switch (parseInt(val)) {
-        case 1: return '货到付款'
-        case 2: return '预付款'
         default: return ''
       }
     }
@@ -282,6 +264,9 @@ export default {
         postData.instartdate = postData.postindate[0]
         postData.inenddate = postData.postindate[1]
         postData.indate = ''
+      }
+      if (!postData.postindate.length) {
+        postData.postindate = ''
       }
       const pData = {}
       for (const item of Object.keys(postData)) {

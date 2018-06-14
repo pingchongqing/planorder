@@ -1,8 +1,22 @@
 <template lang="html">
 <div class="app-container">
-  <sticky :className="'sub-navbar published'" >
+  <sticky :className="'sub-navbar published'">
     <template v-if="fetchSuccess">
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newinstore')">登记入库单</el-button>
+      <el-button  style="margin-left: 10px;" type="success"
+        v-if="planform.innotice.status == 1 && isallownew"
+        :disabled = "deliverway == 1 || planform.innotice.closed == 1"
+        @click="nextpage('newinstore')">登记入库单</el-button>
+      <template v-else-if="planform.innotice.status == -1 || planform.innotice.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'innotice')">删除</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.innotice.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'innotice')">审核</el-button>
+        <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'innotice')">驳回</el-button>
+      </template>
+      <template v-else>
+        <el-tag v-show="false">详情</el-tag>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -11,6 +25,11 @@
   <el-form :model="planform" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
+        <el-form-item label="收货通知单号" >
+          {{planform.innotice.ticketno}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
         <el-form-item label="送货供应商" >
           {{planform.innotice.enterprisename}}
         </el-form-item>
@@ -18,11 +37,6 @@
       <el-col :span="8">
         <el-form-item label="采购订单号" >
           {{planform.innotice.purchorder}}
-        </el-form-item>
-      </el-col>
-      <el-col :span="8">
-        <el-form-item label="收货仓库" >
-          {{planform.innotice.instorename}}
         </el-form-item>
       </el-col>
     </el-row>
@@ -54,10 +68,17 @@
           {{planform.innotice.sumordernum}}
         </el-form-item>
       </el-col>
+      <el-col :span="8">
+        <el-form-item label="收货仓库" >
+          {{planform.innotice.instorename}}
+        </el-form-item>
+      </el-col>
     </el-row>
     <el-row>
-      <el-col :span="16">
-        {{planform.innotice.memos}}
+      <el-col :span="16" v-show="planform.innotice.memos">
+        <el-form-item label="备注" >
+          {{planform.innotice.memos}}
+        </el-form-item>
       </el-col>
     </el-row>
     <div class="itemscont">
@@ -142,9 +163,10 @@
 </template>
 
 <script>
-import { InNoticeDetail, InNoticeList } from '@/api/planorder'
+import { InNoticeDetail, InNoticeList, PurchorderDetail } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+import Modify from '@/utils/modify'
 import Sticky from '@/components/Sticky' // 粘性header组件
 export default {
   components: { Sticky },
@@ -176,16 +198,7 @@ export default {
         },
         innoticeItems: []
       },
-      deliverway: [
-        {
-          name: '库发',
-          value: '1'
-        },
-        {
-          name: '供应商直发',
-          value: '2'
-        }
-      ],
+      deliverway: '',
       fetchSuccess: true
     }
   },
@@ -194,7 +207,9 @@ export default {
       'company',
       'companyId',
       'userInfo',
-      'visitedViews'
+      'visitedViews',
+      'isallow',
+      'isallownew'
     ])
   },
   filters: {
@@ -204,9 +219,21 @@ export default {
     this.getinnoticeDetail()
   },
   methods: {
+    Modify,
+    getPurchaseInfo() {
+      PurchorderDetail({ ticketno: this.planform.innotice.purchorder }).then(
+        res => {
+          console.log(res)
+          this.deliverway = res.data.purchorder.deliverway
+        }
+      ).catch(err => {
+        console.log(err)
+        this.fetchSuccess = false
+      })
+    },
     getinnoticeDetail() {
       this.loading = true
-      InNoticeDetail({ ticketno: this.$route.params.ticketno }).then(
+      InNoticeDetail({ ticketno: this.$route.params.ticketno, flag: 0 }).then(
         res => {
           console.log(res)
           this.loading = false
@@ -221,6 +248,7 @@ export default {
         res => {
           console.log(res)
           this.planform.innotice = res.data.data[0]
+          this.getPurchaseInfo()
         }
       ).catch(err => {
         console.log(err)
@@ -232,6 +260,17 @@ export default {
         name: page,
         params: {
           ticketno: this.$route.params.ticketno
+        }
+      })
+    },
+    Edit() {
+      this.$router.push({
+        name: 'newinnotice',
+        params: {
+          ticketno: this.planform.innotice.purchorder
+        },
+        query: {
+          id: this.$route.params.ticketno
         }
       })
     }
