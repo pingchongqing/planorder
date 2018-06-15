@@ -87,9 +87,9 @@
         </el-table-column>
         <el-table-column
           width="200"
-          label="报价企业">
+          label="报价截止日期">
           <template slot-scope="scope">
-            <span>{{ scope.row.enterprisename }}</span>
+            <span>{{ scope.row.enquiryenddate }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -160,7 +160,7 @@ export default {
       planform: {
         enquiryOrder: {
           customer: '', // 询价方id
-          customname: '', // 询价方id
+          customname: '', // 查询放名称
           enterprise: '', // 报价方id
           enterprisename: '', // 报价方名称
           createuser: '', // 创建人
@@ -171,11 +171,12 @@ export default {
           checkdate: '', // 审核日期
           checktime: '', // 审核时间
           checkadvice: '', // 审核意见
-          sumordernum: '', // 数量合计
+          sumordernum: 0, // 数量合计
           sumamount: '', // 金额合计
           memos: '', // 备注
           customerorderno: '', // 客户订单号
           enquirydate: '', // 询价日期
+          enquiryenddate: '', // 询价截止日期
           paymethod: '', // 付款方式
           postenquirydate: [],
           loading: false
