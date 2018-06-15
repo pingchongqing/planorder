@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="收货企业" prop="outNotice.enterprise">
-          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" disabled>
+          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -21,7 +21,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="发货仓库" prop="outNotice.outstore">
-          <el-select v-model="planform.outNotice.outstore" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.outNotice.outstore" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in revstoreList"
               :key="item.id"

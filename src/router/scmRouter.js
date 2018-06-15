@@ -9,7 +9,7 @@ export default [{
   redirect: '/planorder/newplanorder',
   name: 'planorder',
   alwaysShow: true,
-  meta: { title: '计划单管理', icon: 'plan', roles: ['service_business', 'service_business_verify'] }, // you can set roles in root nav
+  meta: { title: '计划单管理', icon: 'plan', roles: ['service_business', 'service_business_verify', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newplanorder',
@@ -18,7 +18,7 @@ export default [{
       meta: {
         title: '新建计划单',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_market']
       }
     },
     {
@@ -28,7 +28,7 @@ export default [{
       meta: {
         title: '查询计划单',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_business', 'service_business_verify', 'service_market']
       }
     },
     {
@@ -38,7 +38,7 @@ export default [{
       hidden: true,
       meta: {
         title: '计划单详情',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_business', 'service_business_verify', 'service_market']
       }
     }
   ]
@@ -48,7 +48,7 @@ export default [{
   component: Layout,
   redirect: '/quotation/quotationorderlist',
   name: 'quotation',
-  meta: { title: '报价单管理', icon: 'quotation', roles: ['service_business', 'service_business_verify'] }, // you can set roles in root nav
+  meta: { title: '报价单管理', icon: 'quotation', roles: ['service_business', 'service_business_verify', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newquotationorder/:enquiryorder/:type',
@@ -68,7 +68,7 @@ export default [{
       meta: {
         title: '给客户报价单',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_business', 'service_business_verify', 'service_market']
       }
     },
     {
@@ -78,7 +78,7 @@ export default [{
       meta: {
         title: '供应商报价单',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_business', 'service_business_verify', 'service_market']
       }
     },
     {
@@ -89,7 +89,7 @@ export default [{
       meta: {
         title: '报价单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify']
+        roles: ['service_business', 'service_business_verify', 'service_market']
       }
     }
   ]
@@ -100,7 +100,7 @@ export default [{
   redirect: '/purchaseorder/purchaseorderlist',
   name: 'purchaseorder',
   alwaysShow: true,
-  meta: { title: '采购订单管理', icon: 'purchase', roles: ['service_finance', 'service_business_verify', 'service_business'] }, // you can set roles in root nav
+  meta: { title: '采购订单管理', icon: 'purchase', roles: ['service_finance', 'service_business_verify', 'service_business', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newpurchaseorder/:enquiryorder',
@@ -120,7 +120,7 @@ export default [{
       meta: {
         title: '采购订单查询',
         icon: 'search',
-        roles: ['service_finance', 'service_business', 'service_business_verify']
+        roles: ['service_finance', 'service_business', 'service_business_verify', 'service_market']
       }
     },
     {
@@ -131,7 +131,7 @@ export default [{
       meta: {
         title: '采购订单详情',
         icon: 'form',
-        roles: ['service_finance', 'service_business', 'service_business_verify']
+        roles: ['service_finance', 'service_business', 'service_business_verify', 'service_market']
       }
     }
   ]
@@ -142,7 +142,7 @@ export default [{
   redirect: '/saleorder/saleorderlist',
   name: 'saleorder',
   alwaysShow: false,
-  meta: { title: '销售订单管理', icon: 'sale', roles: ['service_finance', 'service_business', 'service_business_verify'] }, // you can set roles in root nav
+  meta: { title: '销售订单管理', icon: 'sale', roles: ['service_finance', 'service_business', 'service_business_verify', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newsaleorder/:enquiryorder',
@@ -162,7 +162,7 @@ export default [{
       meta: {
         title: '销售订单查询',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_finance']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_market']
       }
     },
     {
@@ -173,7 +173,7 @@ export default [{
       meta: {
         title: '销售订单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify', 'service_finance']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_market']
       }
     }
   ]
@@ -183,7 +183,7 @@ export default [{
   component: Layout,
   redirect: '/inmanage/innoticelist',
   name: 'inmanage',
-  meta: { title: '收货管理', icon: 'in', roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell'] }, // you can set roles in root nav
+  meta: { title: '收货管理', icon: 'in', roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newinnotice/:ticketno',
@@ -203,7 +203,7 @@ export default [{
       meta: {
         title: '收货通知单查询',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -214,7 +214,7 @@ export default [{
       meta: {
         title: '收货通知单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -235,7 +235,7 @@ export default [{
       meta: {
         title: '入库单查询',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -246,7 +246,7 @@ export default [{
       meta: {
         title: '入库单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     }
   ]
@@ -256,7 +256,7 @@ export default [{
   component: Layout,
   redirect: '/outmanage/outnoticelist',
   name: 'outmanage',
-  meta: { title: '发货管理', icon: 'out', roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell'] }, // you can set roles in root nav
+  meta: { title: '发货管理', icon: 'out', roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market'] }, // you can set roles in root nav
   children: [
     {
       path: 'newoutnotice/:ticketno',
@@ -276,7 +276,7 @@ export default [{
       meta: {
         title: '发货通知单查询',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -287,7 +287,7 @@ export default [{
       meta: {
         title: '发货通知单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -308,7 +308,7 @@ export default [{
       meta: {
         title: '出库单查询',
         icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     },
     {
@@ -319,7 +319,7 @@ export default [{
       meta: {
         title: '出库单详情',
         icon: 'form',
-        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell']
+        roles: ['service_business', 'service_business_verify', 'service_finance', 'service_sell', 'service_market']
       }
     }
   ]

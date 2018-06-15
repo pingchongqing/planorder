@@ -14,7 +14,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="收货企业" prop="outNotice.enterprise">
-          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" >
+          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -53,7 +53,7 @@
         <span>订单列表</span>
         <template v-if="printno">
           <a
-            :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_delivery_BatchPrint.cpt&ticketno=' + printno"
+            :href="printUrl('bss_delivery_BatchPrint', printno)"
             target="_blank">
             <el-button style="margin-left: 10px;"
               size="mini">
@@ -216,7 +216,7 @@
 <script>
 import { OutNoticeList } from '@/api/planorder'
 import { mapGetters } from 'vuex'
-import { parseTime } from '@/utils'
+import { parseTime, printUrl } from '@/utils'
 export default {
   data() {
     return {
@@ -330,6 +330,7 @@ export default {
     this.getListData()
   },
   methods: {
+    printUrl,
     cancelCheck() {
       this.$refs.multipleTable.clearSelection()
     },

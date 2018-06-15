@@ -68,7 +68,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="客户" prop="saleOrder.customer">
-          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"

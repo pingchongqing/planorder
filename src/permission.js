@@ -3,11 +3,12 @@ import store from './store'
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
 import { MessageBox } from 'element-ui'
+import { LoginPath } from '@/utils'
 // import { getToken } from '@/utils/auth' // 验权
 
 // permissiom judge function
 function hasPermission(roles, permissionRoles) {
-  if (roles.indexOf('admin') >= 0) return true // admin permission passed directly
+  if (roles.indexOf('service_admin') >= 0) return true // admin permission passed directly
   if (!permissionRoles) return true
   return roles.some(role => permissionRoles.indexOf(role) >= 0)
 }
@@ -39,14 +40,15 @@ router.beforeEach((to, from, next) => {
           // location.href = '/csj_login'
           MessageBox.alert('验证失败,请重新登录').then(_ => {
             store.dispatch('LogOut').then(() => {
-              location.href = `http://192.168.1.224:8080/logout?service=${location.origin}/csj_login`
+              location.href = `${LoginPath}/logout?service=${location.origin}/csj_login`
             }).catch(() => {
-              location.href = `http://192.168.1.224:8080/logout?service=${location.origin}/csj_login`
+              location.href = `${LoginPath}/logout?service=${location.origin}/csj_login`
             })
           })
         })
       })
     } else {
+      next()
       // 没有动态改变权限的需求可直接next() 删除下方权限判断 ↓
       if (hasPermission(store.getters.roles, to.meta.roles)) {
         next()//

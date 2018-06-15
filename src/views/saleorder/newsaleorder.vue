@@ -44,7 +44,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="客户" prop="saleOrder.customer">
-          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -205,7 +205,10 @@
             label="销售金额"
             width="100">
             <template slot-scope="scope">
-              <span>{{ scope.row.saleprice*scope.row.ordernum }}</span>
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.orderamount"></el-input>
+              </template>
+              <span v-else>{{ scope.row.orderamount }}</span>
             </template>
           </el-table-column>
           <el-table-column

@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="状态" prop="purchorder.status">
-          <el-select v-model="planform.purchorder.status" clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.purchorder.status" clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in statusList"
               :key="item.value"
@@ -45,7 +45,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="供应商" prop="purchorder.servicer">
-          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"

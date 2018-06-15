@@ -15,7 +15,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="供应商" prop="purchorder.servicer">
-          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.purchorder.servicer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"

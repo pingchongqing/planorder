@@ -25,6 +25,7 @@
 import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import { LoginPath } from '@/utils'
 
 export default {
   components: {
@@ -48,7 +49,7 @@ export default {
       }).then(action => {
         if (action === 'confirm') {
           this.$store.dispatch('LogOut').then(() => {
-            location.href = `http://192.168.1.224:8080/logout?service=${location.origin}/csj_login`
+            location.href = `${LoginPath}/logout?service=${location.origin}/csj_login`
           })
         }
       })

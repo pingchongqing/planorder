@@ -35,11 +35,6 @@
           {{planform.quotation.enterpricename}}
         </el-form-item>
       </el-col>
-      <el-col :span="8">
-        <el-form-item label="报价日期" prop="quotation.quotationdate">
-          {{planform.quotation.quotationdate}}
-        </el-form-item>
-      </el-col>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
@@ -50,6 +45,11 @@
       <el-col :span="8">
         <el-form-item label="创建日期" prop="quotation.createdate">
           {{planform.quotation.createdate}}
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="报价日期" prop="quotation.quotationdate">
+          {{planform.quotation.quotationdate}}
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -68,6 +68,13 @@
           style="width: 100%"
           border
           max-height="600">
+          <el-table-column
+            label="序号"
+            width="80">
+            <template slot-scope="scope">
+              <span>{{ scope.row.itemno }}</span>
+            </template>
+          </el-table-column>
           <el-table-column
             label="商品名称"
             width="120">
@@ -175,6 +182,13 @@
                 </el-select>
               </template>
               <span v-else>{{ scope.row.servicername }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="价格"
+            width="100">
+            <template slot-scope="scope">
+              <span>{{ scope.row.price }}</span>
             </template>
           </el-table-column>
           <el-table-column

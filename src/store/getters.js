@@ -15,10 +15,10 @@ const getters = {
   storeList: state => state.app.storeList,
   gysList: state => state.app.gysData,
   isallow: state => {
-    return state.user.roles.includes('service_business_verify')
+    return state.user.roles.includes('service_business_verify') || state.user.roles.includes('service_admin')
   },
   isallownew: state => {
-    return state.user.roles.includes('service_business_verify') || state.user.roles.includes('service_business')
+    return state.user.roles.includes('service_business_verify') || state.user.roles.includes('service_business') || state.user.roles.includes('service_admin')
   }
 }
 export default getters

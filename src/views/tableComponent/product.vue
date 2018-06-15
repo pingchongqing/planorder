@@ -4,9 +4,6 @@
       <el-form-item label="商品编号">
         <el-input v-model="postData.productno" placeholder="商品编号"></el-input>
       </el-form-item>
-      <el-form-item label="商品分类">
-        <el-input v-model="postData.categoryno" placeholder="商品分类"></el-input>
-      </el-form-item>
       <el-form-item label="商品名称">
         <el-input v-model="postData.productname" placeholder="商品名称"></el-input>
       </el-form-item>
@@ -15,6 +12,9 @@
         <el-button type="text"  @click="onPuls" :icon="ispul ? 'el-icon-arrow-up' : 'el-icon-arrow-down'">{{ispul ? '收起' : '展开'}}条件</el-button>
       </el-form-item>
       <div v-show="ispul">
+        <el-form-item label="商品分类">
+          <el-input v-model="postData.categoryno" placeholder="商品分类"></el-input>
+        </el-form-item>
         <el-form-item label="规格">
           <el-input v-model="postData.productrule" placeholder="规格"></el-input>
         </el-form-item>
@@ -23,10 +23,18 @@
         </el-form-item>
       </div>
     </el-form>
+    <div class="filter-container">
+      <el-checkbox-group v-model="checkboxVal">
+        <el-checkbox label="productrule">规格</el-checkbox>
+        <el-checkbox label="productsize">型号</el-checkbox>
+      </el-checkbox-group>
+    </div>
     <el-table
       ref="productTable"
       @selection-change="handleSelectionChange"
+      highlight-current-row
       max-height="600"
+      :key='key'
       :data="gridData" :loading="loading">
       <el-table-column
         type="selection"
@@ -35,9 +43,12 @@
       </el-table-column>
       <el-table-column property="productno" label="商品编号" width="120"></el-table-column>
       <el-table-column property="categoryno" label="分类" width="100"></el-table-column>
-      <el-table-column property="productname" label="商品名称" width="180"></el-table-column>
-      <el-table-column property="productrule" label="规格" width="250"></el-table-column>
-      <el-table-column property="productsize" label="型号" ></el-table-column>
+      <el-table-column property="productname" label="商品名称" ></el-table-column>
+      <el-table-column :key='fruit.value' v-for='fruit in formThead' :label="fruit.name" width="250">
+        <template slot-scope="scope">
+          {{scope.row[fruit.value]}}
+        </template>
+      </el-table-column>
     </el-table>
     <el-pagination
       @size-change="handleSizeChange"
@@ -58,6 +69,7 @@
 
 <script>
 import { GetProduct } from '@/api/planorder'
+const defaultFormThead = []
 export default {
   data() {
     return {
@@ -75,7 +87,17 @@ export default {
         productsize: ''
       },
       multipleSelection: [],
-      ispul: false
+      ispul: false,
+      checkboxVal: defaultFormThead, // checkboxVal
+      key: 1, // table key
+      formTheadOptions: [{ name: '规格', value: 'productrule' }, { name: '型号', value: 'productsize' }],
+      formThead: defaultFormThead // 默认表头 Default header
+    }
+  },
+  watch: {
+    checkboxVal(valArr) {
+      this.formThead = this.formTheadOptions.filter(i => valArr.includes(i.value))
+      this.key = this.key + 1// 为了保证table 每次都会重渲 In order to ensure the table will be re-rendered each time
     }
   },
   created() {

@@ -58,3 +58,14 @@ export function formatTime(time, option) {
     return d.getMonth() + 1 + '月' + d.getDate() + '日' + d.getHours() + '时' + d.getMinutes() + '分'
   }
 }
+
+export function printUrl(name, ticketno) {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return 'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/' + name + '.cpt&ticketno=' + ticketno
+  } else if (process.env.NODE_ENV === 'production') {
+    return 'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL/' + name + '.cpt&ticketno=' + ticketno
+  }
+}
+
+// export const LoginPath = process.env.NODE_ENV === 'development' ? 'http://192.168.1.224:8080' : 'http://sso.csjscm.com'
+export const LoginPath = 'http://sso.csjscm.com'

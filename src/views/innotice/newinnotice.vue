@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="送货供应商" prop="innotice.enterprise">
-          <el-select v-model="planform.innotice.enterprise" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" disabled>
+          <el-select v-model="planform.innotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -21,7 +21,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="收货仓库" prop="innotice.instore">
-          <el-select v-model="planform.innotice.instore" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.innotice.instore" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in revstoreList"
               :key="item.id"
@@ -357,6 +357,9 @@ export default {
           this.planform.innotice.purchorder = resdata.purchorder.ticketno
           this.planform.innotice.instore = resdata.purchorder.revstore
           this.planform.innotice.instorename = resdata.purchorder.revstorename || this.storename
+          this.planform.innotice.linkaddress = resdata.purchorder.receiveaddress
+          this.planform.innotice.linkuser = resdata.purchorder.linkusername
+          this.planform.innotice.linktel = resdata.purchorder.linktel
           resdata.purchorderItems.forEach(d => {
             const pushdata = {}
             pushdata.edit = true

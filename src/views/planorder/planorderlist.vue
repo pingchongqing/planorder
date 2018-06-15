@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="询价方" prop="enquiryOrder.customer">
-          <el-select v-model="planform.enquiryOrder.customer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.enquiryOrder.customer" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -16,7 +16,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="报价方" prop="enquiryOrder.enterprise">
-          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -29,10 +29,8 @@
       <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
           <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
-            <!-- <el-option label="全部" value="0" ></el-option> -->
             <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="现金付款" value="2" ></el-option>
-            <el-option label="预付款" value="3" ></el-option>
+            <el-option label="预付款" value="2" ></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -132,7 +130,7 @@
           fixed="right"
           label="操作">
           <template slot-scope="scope">
-            <a :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_enquiryorder_schedule.cpt&ticketno=' + scope.row.ticketno" target="_blank">
+            <a :href="printUrl('bss_enquiryorder_schedule', scope.row.ticketno)" target="_blank">
               <el-button type="text">查看进度</el-button>
             </a>
           </template>
@@ -155,7 +153,7 @@
 <script>
 import { List } from '@/api/planorder'
 import { mapGetters } from 'vuex'
-import { parseTime } from '@/utils'
+import { parseTime, printUrl } from '@/utils'
 export default {
   data() {
     return {
@@ -217,6 +215,7 @@ export default {
     this.getListData()
   },
   methods: {
+    printUrl,
     handleSizeChange(val) {
       this.pagesize = val
       this.getListData()

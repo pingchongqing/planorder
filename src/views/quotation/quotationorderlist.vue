@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="10" v-if="$route.name === 'serverquotationorderlist'">
         <el-form-item label="报价企业" prop="quotation.enterprice">
-          <el-select v-model="planform.quotation.enterprice" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.quotation.enterprice" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in saleData"
               :key="item.id"
@@ -16,7 +16,7 @@
       </el-col>
       <el-col :span="10" v-else>
         <el-form-item label="询价企业" prop="quotation.customer">
-          <el-select v-model="planform.quotation.customer" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.quotation.customer" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"

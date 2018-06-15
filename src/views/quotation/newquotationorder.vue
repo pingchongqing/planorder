@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="报价方" prop="quotation.enterprice">
-          <el-select v-model="planform.quotation.enterprice" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" :disabled="type == 0">
+          <el-select v-model="planform.quotation.enterprice" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" :disabled="type == 0">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -16,7 +16,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="企业客户" prop="quotation.customer">
-          <el-select v-model="planform.quotation.customer" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" disabled>
+          <el-select v-model="planform.quotation.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
             <el-option
               v-for="item in gridData"
               :key="item.id"

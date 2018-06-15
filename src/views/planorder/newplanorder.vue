@@ -9,7 +9,7 @@
             filterable
             clearable
             @change="customerChange"
-            placeholder="请搜索或选择" prefix-icon="el-icon-search">
+            placeholder="请搜索或选择" prefix-icon="el-icon-search" size="100%">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -21,7 +21,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="报价方" prop="enquiryOrder.enterprise">
-          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -381,7 +381,7 @@ export default {
       dialogTableVisible: false,
       multipleSelection: [],
       submitloading: false,
-      templetUrl: '',
+      templetUrl: '/static/templet/enquiry.xls',
       special: false
     }
   },
@@ -479,7 +479,7 @@ export default {
       this.$refs['ruleForm'].validate((valid) => {
         console.log(valid)
         if (valid) {
-          if (this.planform.enquiryOrder.enquirydate.getTime() >= this.planform.enquiryOrder.enquiryenddate.getTime()) {
+          if (this.planform.enquiryOrder.enquirydate >= this.planform.enquiryOrder.enquiryenddate) {
             this.$message({
               message: '询价截止日期不能早于询价日期',
               type: 'warn'

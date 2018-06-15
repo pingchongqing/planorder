@@ -1,16 +1,18 @@
 <template lang="html">
 <div class="app-container">
-  <sticky :className="'sub-navbar published'" >
+  <sticky :className="'sub-navbar published'">
     <template v-if="fetchSuccess">
-      <a :href="'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/bss_enquiryorder.cpt&ticketno=' + $route.params.ticketno" target="_blank">
+      <a :href="printUrl('bss_enquiryorder', $route.params.ticketno)" target="_blank">
         <el-button style="margin-left: 10px;" v-loading="downloadLoading">
           导出询价单
         </el-button>
       </a>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记供应商报价单</el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '0')">登记给客户报价单</el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
-      <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
+      <template v-if="isallow || isallownew">
+        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记供应商报价单</el-button>
+        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '0')">登记给客户报价单</el-button>
+        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
+        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
+      </template>
     </template>
     <template v-else>
       <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
@@ -253,7 +255,7 @@
 import { DetailInfo, GetQuotationList, PurchorderList, SaleList } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import Sticky from '@/components/Sticky' // 粘性header组件
-import { parseTime } from '@/utils'
+import { parseTime, printUrl } from '@/utils'
 import quotable from '@/views/tableComponent/quotationtable'
 import purchasetable from '@/views/tableComponent/purchasetable'
 import saletable from '@/views/tableComponent/saletable'
@@ -289,7 +291,9 @@ export default {
     ...mapGetters([
       'company',
       'companyId',
-      'userInfo'
+      'userInfo',
+      'isallow',
+      'isallownew'
     ])
   },
   filters: {
@@ -306,6 +310,7 @@ export default {
     this.getDetail()
   },
   methods: {
+    printUrl,
     getfromservicelist(params, name) {
       this[name + 'loading'] = true
       GetQuotationList(params).then(res => {
