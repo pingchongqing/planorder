@@ -99,20 +99,6 @@
       </template>
     </el-table-column>
     <el-table-column
-      label="采购金额"
-      width="100">
-      <template slot-scope="scope">
-        <span>{{ scope.row.sumorderamount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column
-      label="税金"
-      width="100">
-      <template slot-scope="scope">
-        <span>{{ scope.row.sumtaxamount }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column
       label="付款方式"
       width="100">
       <template slot-scope="scope">
@@ -182,7 +168,8 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '预付款'
+        case 2: return '货到票到付款'
+        case 3: return '先款后货'
         default: return ''
       }
     },

@@ -4,7 +4,7 @@
     <template v-if="fetchSuccess">
       <el-button  style="margin-left: 10px;" type="success"
         v-if="planform.purchorder.status == 1 && isallownew"
-        :disabled = "planform.purchorder.closed == 1"  
+        :disabled = "planform.purchorder.closed == 1"
         @click="nextpage('newinnotice')">登记收货通知单</el-button>
       <template v-else-if="planform.purchorder.status == -1 || planform.purchorder.status == -2">
         <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'purchorder')">删除</el-button>
@@ -268,7 +268,8 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '预付款'
+        case 2: return '货到票到付款'
+        case 3: return '先款后货'
         default: return ''
       }
     },

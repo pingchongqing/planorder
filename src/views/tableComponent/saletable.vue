@@ -113,7 +113,7 @@
       </template>
     </el-table-column>
     <el-table-column
-      label="付款方式"
+      label="收款方式"
       width="100">
       <template slot-scope="scope">
         <span>{{ scope.row.recmethod|recmethodFilter }}</span>

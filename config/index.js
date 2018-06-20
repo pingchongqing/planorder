@@ -30,7 +30,7 @@ module.exports = {
         }
       },
       '/jqmapi': {
-        target: 'http://192.168.2.33:8082',
+        target: 'http://192.168.2.34:8082',
         // target: 'http://192.168.1.208:8082',
         changeOrigin: true,
         pathRewrite: {

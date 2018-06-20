@@ -62,21 +62,21 @@ export default [{
       }
     },
     {
-      path: 'customerquotationorderlist',
-      component: _import('quotation/quotationorderlist'),
-      name: 'customerquotationorderlist',
-      meta: {
-        title: '给客户报价单',
-        icon: 'search',
-        roles: ['service_business', 'service_business_verify', 'service_market']
-      }
-    },
-    {
       path: 'serverquotationorderlist',
       component: _import('quotation/quotationorderlist'),
       name: 'serverquotationorderlist',
       meta: {
         title: '供应商报价单',
+        icon: 'search',
+        roles: ['service_business', 'service_business_verify', 'service_market']
+      }
+    },
+    {
+      path: 'customerquotationorderlist',
+      component: _import('quotation/quotationorderlist'),
+      name: 'customerquotationorderlist',
+      meta: {
+        title: '给客户报价单',
         icon: 'search',
         roles: ['service_business', 'service_business_verify', 'service_market']
       }

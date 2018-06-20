@@ -76,6 +76,13 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="商品编码"
+            width="160">
+            <template slot-scope="scope">
+              <span>{{ scope.row.materialno }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="商品名称"
             width="120">
             <template slot-scope="scope">

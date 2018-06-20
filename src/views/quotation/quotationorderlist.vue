@@ -27,9 +27,9 @@
         </el-form-item>
       </el-col>
       <el-col :span="14">
-        <el-form-item label="报价日期" prop="quotation.quotationdate">
+        <el-form-item label="报价日期" >
           <el-date-picker
-            v-model="planform.quotation.quotationdate"
+            v-model="planform.quotation.postquotationdate"
             type="datetimerange"
             :editable="false"
             range-separator="至"
@@ -48,7 +48,7 @@
       <el-col :span="14">
         <el-form-item label="创建日期" prop="quotation.createdate">
           <el-date-picker
-            v-model="planform.quotation.createdate"
+            v-model="planform.quotation.postcreatedate"
             type="datetimerange"
             :editable="false"
             range-separator="至"
@@ -127,7 +127,9 @@ export default {
           quotationdate: '', // 报价日期
           status: '', // 状态--1（草稿） 0（待审核） 1(确认通过) -2（ 驳回 ）
           sumamount: 0, // 金额合计
-          ticketno: ''
+          ticketno: '',
+          postquotationdate: [],
+          postcreatedate: []
         },
         quotationItems: []
       },
@@ -195,14 +197,14 @@ export default {
     },
     getListData() {
       const postData = this.planform.quotation
-      if (postData.quotationdate && postData.quotationdate.length) {
-        postData.quotationstartdate = parseTime(postData.quotationdate[0])
-        postData.quotationenddate = parseTime(postData.quotationdate[1])
+      if (postData.postquotationdate && postData.postquotationdate.length) {
+        postData.quotationstartdate = parseTime(postData.postquotationdate[0])
+        postData.quotationenddate = parseTime(postData.postquotationdate[1])
         postData.quotationdate = ''
       }
-      if (postData.createdate && postData.createdate.length) {
-        postData.createstartdate = parseTime(postData.createdate[0])
-        postData.createenddate = parseTime(postData.createdate[1])
+      if (postData.postcreatedate && postData.postcreatedate.length) {
+        postData.createstartdate = parseTime(postData.postcreatedate[0])
+        postData.createenddate = parseTime(postData.postcreatedate[1])
         postData.createdate = ''
       }
       if (this.$route.name === 'customerquotationorderlist') {

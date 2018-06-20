@@ -301,7 +301,8 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '预付款'
+        case 2: return '货到票到付款'
+        case 3: return '先款后货'
         default: return ''
       }
     }

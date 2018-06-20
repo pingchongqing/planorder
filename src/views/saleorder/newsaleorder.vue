@@ -292,6 +292,9 @@ export default {
           if (!v.orderunit) {
             return callback(new Error('请输入单位'))
           }
+          if (!v.materialname) {
+            return callback(new Error('请输入商品名称'))
+          }
         })
         callback()
       }, 300)

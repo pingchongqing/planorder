@@ -14,7 +14,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="收货企业" prop="inorder.enterprise">
-          <el-select v-model="planform.inorder.enterprise" filterable clearable placeholder="请选择" prefix-icon="el-icon-search" >
+          <el-select v-model="planform.inorder.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -265,7 +265,7 @@ export default {
         postData.inenddate = postData.postindate[1]
         postData.indate = ''
       }
-      if (!postData.postindate.length) {
+      if (postData.postindate && !postData.postindate.length) {
         postData.postindate = ''
       }
       const pData = {}

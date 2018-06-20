@@ -63,9 +63,12 @@
       <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
           <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
-            <!-- <el-option label="全部" value="0" ></el-option> -->
-            <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="预付款" value="2" ></el-option>
+            <el-option
+              v-for="item in paymethod"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -382,7 +385,21 @@ export default {
       multipleSelection: [],
       submitloading: false,
       templetUrl: '/static/templet/enquiry.xls',
-      special: false
+      special: false,
+      paymethod: [
+        {
+          name: '货到付款',
+          value: '1'
+        },
+        {
+          name: '货到票到付款',
+          value: '2'
+        },
+        {
+          name: '先款后货',
+          value: '3'
+        }
+      ]
     }
   },
   computed: {

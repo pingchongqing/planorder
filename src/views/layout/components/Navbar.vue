@@ -2,6 +2,10 @@
   <el-menu class="navbar" mode="horizontal">
     <hamburger class="hamburger-container" :toggleClick="toggleSideBar" :isActive="sidebar.opened"></hamburger>
     <breadcrumb></breadcrumb>
+    <div class="usercont">
+      <span><svg-icon icon-class="company" />{{company}}</span>
+      <span><svg-icon icon-class="user" />{{userInfo.truename}}</span>
+    </div>
     <el-dropdown class="avatar-container" trigger="click">
       <div class="avatar-wrapper">
         <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
@@ -35,7 +39,9 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'company',
+      'userInfo'
     ])
   },
   methods: {
@@ -96,6 +102,12 @@ export default {
         font-size: 12px;
       }
     }
+  }
+  .usercont {
+    position: absolute;
+    right: 100px;
+    top: 8px;
+    color: #666;
   }
 }
 </style>

@@ -9,7 +9,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="收货仓库" prop="inorder.instore">
-          <el-select v-model="planform.inorder.instore" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="planform.inorder.instore" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
             <el-option
               v-for="item in revstoreList"
               :key="item.id"

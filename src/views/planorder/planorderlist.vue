@@ -29,8 +29,12 @@
       <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
           <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
-            <el-option label="货到付款" value="1" ></el-option>
-            <el-option label="预付款" value="2" ></el-option>
+            <el-option
+              v-for="item in paymethod"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -186,7 +190,21 @@ export default {
       pagesize: 10,
       pageindex: 1,
       total: 0,
-      currentPage: 1
+      currentPage: 1,
+      paymethod: [
+        {
+          name: '货到付款',
+          value: '1'
+        },
+        {
+          name: '货到票到付款',
+          value: '2'
+        },
+        {
+          name: '先款后货',
+          value: '3'
+        }
+      ]
     }
   },
   computed: {
@@ -204,7 +222,8 @@ export default {
     paymethodFilter(val) {
       switch (parseInt(val)) {
         case 1: return '货到付款'
-        case 2: return '预付款'
+        case 2: return '货到票到付款'
+        case 3: return '先款后货'
         default: return ''
       }
     }
