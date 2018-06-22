@@ -3,8 +3,8 @@
   <el-form :model="planform" :rules="rules" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="送货供应商" prop="innotice.enterprise">
-          <el-select v-model="planform.innotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
+        <el-form-item label="送货供应商" prop="innotice.servicer">
+          <el-select v-model="planform.innotice.servicer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -194,6 +194,8 @@ export default {
           instore: '', // 入库仓库
           instorename: '', // 入库仓库名称
           indate: '', // 入库日期
+          servicer: '',
+          servicername: '',
           enterprise: '', // 平台企业
           enterprisename: '', // 平台企业 （裕大）
           createuser: '', // 创建人
@@ -352,8 +354,8 @@ export default {
         res => {
           console.log(res)
           const resdata = res.data
-          this.planform.innotice.enterprise = resdata.purchorder.servicer
-          this.planform.innotice.enterprisename = resdata.purchorder.servicername
+          this.planform.innotice.servicer = resdata.purchorder.servicer
+          this.planform.innotice.servicername = resdata.purchorder.servicername
           this.planform.innotice.purchorder = resdata.purchorder.ticketno
           this.planform.innotice.instore = resdata.purchorder.revstore
           this.planform.innotice.instorename = resdata.purchorder.revstorename || this.storename

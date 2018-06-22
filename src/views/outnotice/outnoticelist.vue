@@ -13,8 +13,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收货企业" prop="outNotice.enterprise">
-          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
+        <el-form-item label="收货企业" prop="outNotice.customer">
+          <el-select v-model="planform.outNotice.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -108,10 +108,10 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="企业"
+          label="收货企业"
           width="150">
           <template slot-scope="scope">
-            <span>{{ scope.row.enterprisename }}</span>
+            <span>{{ scope.row.customername }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -230,6 +230,8 @@ export default {
           enterprisename: '', // 平台企业 （裕大）
           createuser: '', // 创建人
           createdate: '', // 创建日期
+          customer: '', // --收货企业
+          customername: '',
           status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）
           checkuser: '', // 审核人
           checkdate: '', // 审核日期

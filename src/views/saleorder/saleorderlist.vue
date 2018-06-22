@@ -26,7 +26,7 @@
       </el-col>
     </el-row>
     <el-row :gutter="20">
-      <el-col :span="16">
+      <el-col :span="10">
         <el-form-item label="交货日期" prop="saleOrder.planarrivedate">
           <el-date-picker
             v-model="planform.saleOrder.planarrivedate"
@@ -38,7 +38,19 @@
           </el-date-picker>
         </el-form-item>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="7">
+        <el-form-item label="客户" prop="saleOrder.customer">
+          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in gridData"
+              :key="item.id"
+              :label="item.name"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="7">
         <el-form-item label="制单人" prop="saleOrder.createuser">
           <el-input type="text" v-model="planform.saleOrder.createuser" ></el-input>
         </el-form-item>
@@ -67,15 +79,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="客户" prop="saleOrder.customer">
-          <el-select v-model="planform.saleOrder.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search">
-            <el-option
-              v-for="item in gridData"
-              :key="item.id"
-              :label="item.name"
-              :value="item.requestid">
-            </el-option>
-          </el-select>
+        <el-form-item label="合同编号" prop="saleOrder.contractno">
+          <el-input type="text" v-model="planform.saleOrder.contractno" ></el-input>
         </el-form-item>
       </el-col>
     </el-row>
@@ -84,7 +89,7 @@
       <el-button @click="onCancel">重置</el-button>
     </el-form-item>
     <div class="itemscont">
-      <saletable :list="list" :loading="loading"></saletable>
+      <saletable :list="list" :loading="loading" :totalorder="totalorder" :totalamount="totalamount"></saletable>
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentPageChange"
@@ -125,6 +130,7 @@ export default {
           checkdate: '', // 审核日期
           checktime: '', // 审核时间
           checkadvice: '', // 审核意见
+          contractno: '', // 合同编号
           enterprise: '', // //企业id（裕达）
           enterprisename: '', // 企业名称（裕达）
           recmethod: '', // 收款方式
@@ -170,7 +176,9 @@ export default {
           value: '2'
         }
       ],
-      loading: false
+      loading: false,
+      totalorder: '',
+      totalamount: ''
     }
   },
   computed: {
@@ -235,6 +243,8 @@ export default {
         this.list = res.data.data
         this.total = res.data.total
         this.currentPage = res.data.currentPage
+        this.totalorder = res.data.quantity
+        this.totalamount = res.data.amount
         this.loading = false
         console.log(res)
       }).catch(err => {

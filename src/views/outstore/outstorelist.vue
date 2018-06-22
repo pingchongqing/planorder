@@ -13,8 +13,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收货企业" prop="outOrder.enterprise">
-          <el-select v-model="planform.outOrder.enterprise" filterable clearable size="100%" placeholder="请选择" prefix-icon="el-icon-search" >
+        <el-form-item label="收货企业" prop="outOrder.customer">
+          <el-select v-model="planform.outOrder.customer" filterable clearable size="100%" placeholder="请选择" prefix-icon="el-icon-search" >
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -71,10 +71,10 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="企业"
+          label="收货企业"
           width="150">
           <template slot-scope="scope">
-            <span>{{ scope.row.enterprisename }}</span>
+            <span>{{ scope.row.customername }}</span>
           </template>
         </el-table-column>
         <el-table-column

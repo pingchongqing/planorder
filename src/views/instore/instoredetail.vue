@@ -38,7 +38,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="发货仓库" prop="inorder.outstore">
+        <el-form-item label="入库仓库" prop="inorder.outstore">
           {{planform.inorder.instorename}}
         </el-form-item>
       </el-col>

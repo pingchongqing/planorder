@@ -193,13 +193,7 @@
             width="260">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-date-picker
-                  v-model="scope.row.warrantydate"
-                  type="date"
-                  :editable="false"
-                  placeholder="选择日期时间"
-                  align="right">
-                </el-date-picker>
+                <el-input class="edit-input" size="small" v-model="scope.row.warrantydate"></el-input>
               </template>
               <span v-else>{{ scope.row.warrantydate }}</span>
             </template>
@@ -209,13 +203,7 @@
             width="260">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-date-picker
-                  v-model="scope.row.supplydate"
-                  type="date"
-                  :editable="false"
-                  placeholder="选择日期时间"
-                  align="right">
-                </el-date-picker>
+                <el-input class="edit-input" size="small" v-model="scope.row.supplydate"></el-input>
               </template>
               <span v-else>{{ scope.row.supplydate }}</span>
             </template>
@@ -298,62 +286,64 @@
 import { addOrUpdateenquiryOrder, CompanyTemplet } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+const defaultform = {
+  enquiryOrder: {
+    customer: '', // 询价方id
+    customname: '', // 查询放名称
+    enterprise: '', // 报价方id
+    enterprisename: '', // 报价方名称
+    createuser: '', // 创建人
+    createdate: '', // 创建日期
+    createtime: '', // 创建时间
+    status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）
+    checkuser: '', // 审核人
+    checkdate: '', // 审核日期
+    checktime: '', // 审核时间
+    checkadvice: '', // 审核意见
+    sumordernum: 0, // 数量合计
+    sumamount: '', // 金额合计
+    memos: '', // 备注
+    customerorderno: '', // 客户订单号
+    enquirydate: '', // 询价日期
+    enquiryenddate: '', // 询价截止日期
+    paymethod: '' // 付款方式
+  },
+  enquiryOrderItems: [
+    // {
+    //   servicer: '', // 服务商
+    //   servicername: '', // 服务商名称
+    //   categoryid:"402881325a5e22c4015a5f7ed3000035", // 分类id
+    //   categoryname:"断路器", //分类名称
+    //   itemno: '', // 行号
+    //   material: '', // 川商品id
+    //   materialno: '', // 川商品编码
+    //   materialname: '', // 川商品名称
+    //   materialrule: '', // 商品规格
+    //   materialsize: '', // 商品型号
+    //   materialtag: '', // 品牌
+    //   orderunit: '', // 单位
+    //   orderprice: '', // 单价
+    //   orderamount: '', // 金额
+    //   ordernum: '', // 数量
+    //   warrantydate: '', // 质保期
+    //   supplydate: '', // 交货日期
+    //   memos: '' // 备注
+    // }
+  ]
+}
 export default {
+  name: 'newplanorder',
   data() {
     var checkDetail = (rule, value, callback) => {
       if (!value.length) {
-        return callback(new Error('招标物品明细不能空'))
+        return callback(new Error('物品明细不能空'))
       }
       setTimeout(() => {
         callback()
       }, 300)
     }
     return {
-      planform: {
-        enquiryOrder: {
-          customer: '', // 询价方id
-          customname: '', // 查询放名称
-          enterprise: '', // 报价方id
-          enterprisename: '', // 报价方名称
-          createuser: '', // 创建人
-          createdate: '', // 创建日期
-          createtime: '', // 创建时间
-          status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）
-          checkuser: '', // 审核人
-          checkdate: '', // 审核日期
-          checktime: '', // 审核时间
-          checkadvice: '', // 审核意见
-          sumordernum: 0, // 数量合计
-          sumamount: '', // 金额合计
-          memos: '', // 备注
-          customerorderno: '', // 客户订单号
-          enquirydate: '', // 询价日期
-          enquiryenddate: '', // 询价截止日期
-          paymethod: '' // 付款方式
-        },
-        enquiryOrderItems: [
-          // {
-          //   servicer: '', // 服务商
-          //   servicername: '', // 服务商名称
-          //   categoryid:"402881325a5e22c4015a5f7ed3000035", // 分类id
-          //   categoryname:"断路器", //分类名称
-          //   itemno: '', // 行号
-          //   material: '', // 川商品id
-          //   materialno: '', // 川商品编码
-          //   materialname: '', // 川商品名称
-          //   materialrule: '', // 商品规格
-          //   materialsize: '', // 商品型号
-          //   materialtag: '', // 品牌
-          //   orderunit: '', // 单位
-          //   orderprice: '', // 单价
-          //   orderamount: '', // 金额
-          //   ordernum: '', // 数量
-          //   warrantydate: '', // 质保期
-          //   supplydate: '', // 交货日期
-          //   memos: '' // 备注
-          // }
-        ]
-      },
+      planform: Object.assign({}, defaultform),
       rules: {
         enquiryOrder: {
           customer: [
@@ -456,15 +446,7 @@ export default {
     //   })
     // }
     this.getTemplate()
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      next()
-    }).catch(() => {})
+    this.planform = Object.assign({}, defaultform)
   },
   methods: {
     getTemplate() {
@@ -513,6 +495,28 @@ export default {
             res => {
               console.log(res)
               if (res.code === '200' && res.data) {
+                defaultform.enquiryOrder = {
+                  customer: '', // 询价方id
+                  customname: '', // 查询放名称
+                  enterprise: '', // 报价方id
+                  enterprisename: '', // 报价方名称
+                  createuser: '', // 创建人
+                  createdate: '', // 创建日期
+                  createtime: '', // 创建时间
+                  status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）
+                  checkuser: '', // 审核人
+                  checkdate: '', // 审核日期
+                  checktime: '', // 审核时间
+                  checkadvice: '', // 审核意见
+                  sumordernum: 0, // 数量合计
+                  sumamount: '', // 金额合计
+                  memos: '', // 备注
+                  customerorderno: '', // 客户订单号
+                  enquirydate: '', // 询价日期
+                  enquiryenddate: '', // 询价截止日期
+                  paymethod: '' // 付款方式
+                }
+                defaultform.enquiryOrderItems = []
                 this.$confirm('新建计划单成功！', '提示', {
                   confirmButtonText: '详情',
                   cancelButtonText: '计划单列表',
@@ -566,7 +570,8 @@ export default {
           this.dialogVisible = false
         }).catch(_ => {})
         res.data.map(row => { row.edit = false })
-        this.planform.enquiryOrderItems = [...this.planform.enquiryOrderItems, ...res.data]
+        defaultform.enquiryOrderItems = [...this.planform.enquiryOrderItems, ...res.data]
+        this.planform = Object.assign({}, defaultform)
       } else {
         this.$message({
           message: res.message,
@@ -586,7 +591,8 @@ export default {
         .catch(_ => {})
     },
     handleDelete(index, row) {
-      this.planform.enquiryOrderItems.splice(index, 1)
+      defaultform.enquiryOrderItems.splice(index, 1)
+      this.planform = Object.assign({}, defaultform)
       this.$message({
         message: '成功删除一条记录！',
         type: 'success'
@@ -606,18 +612,13 @@ export default {
     editRow(row) {
       //   warrantydate: '', // 质保期
       //   supplydate: '', // 交货日期
-      if (row.warrantydate) {
-        row.warrantydate = parseTime(new Date(row.warrantydate), '{y}-{m}-{d}')
-      }
-      if (row.supplydate) {
-        row.supplydate = parseTime(new Date(row.supplydate), '{y}-{m}-{d}')
-      }
       row.servicername = this.getservicename(row.servicer)
       row.edit = false
+      defaultform.enquiryOrderItems = this.planform.enquiryOrderItems
     },
     goeditrow(index) {
-      this.planform.enquiryOrderItems[index].edit = true
-      this.planform = JSON.parse(JSON.stringify(this.planform))
+      defaultform.enquiryOrderItems[index].edit = true
+      this.planform = Object.assign({}, defaultform)
     },
     handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择上传 1 个文件`)
@@ -626,7 +627,7 @@ export default {
       this.dialogVisible = true
     },
     addDetail() {
-      this.planform.enquiryOrderItems.push(
+      defaultform.enquiryOrderItems.push(
         {
           servicer: '', // 服务商
           servicername: '', // 服务商名称
@@ -647,6 +648,7 @@ export default {
           edit: true
         }
       )
+      this.planform = Object.assign({}, defaultform)
     },
     handleCurrentChange(val) {
       this.currentRow = val

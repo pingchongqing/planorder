@@ -29,8 +29,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收货企业" prop="outNotice.enterprise">
-          {{planform.outNotice.enterprisename}}
+        <el-form-item label="收货企业" >
+          {{planform.outNotice.customername}}
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -179,6 +179,8 @@ export default {
           outdate: '', // 计划到达日期
           enterprise: '', // 平台企业
           enterprisename: '', // 平台企业 （裕大）
+          customer: '',
+          customername: '',
           createuser: '', // 创建人
           createdate: '', // 创建日期
           status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）

@@ -31,14 +31,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="交货方式" prop="saleOrder.deliverway">
-          <el-select v-model="planform.saleOrder.deliverway" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
-            <el-option
-              v-for="item in deliverway"
-              :key="item.value"
-              :label="item.name"
-              :value="item.value">
-            </el-option>
+        <el-form-item label="收款方式" prop="saleOrder.recmethod">
+          <el-select v-model="planform.saleOrder.recmethod" placeholder="请选择">
+            <!-- <el-option label="全部" value="0" ></el-option> -->
+            <el-option label="货到收款" value="1" ></el-option>
+            <el-option label="预收款" value="2" ></el-option>
           </el-select>
         </el-form-item>
       </el-col>
@@ -57,17 +54,32 @@
     </el-row>
     <el-row>
       <el-col :span="8">
-        <el-form-item label="收款方式" prop="saleOrder.recmethod">
-          <el-select v-model="planform.saleOrder.recmethod" placeholder="请选择">
-            <!-- <el-option label="全部" value="0" ></el-option> -->
-            <el-option label="货到收款" value="1" ></el-option>
-            <el-option label="预收款" value="2" ></el-option>
+        <el-form-item label="合同编号" prop="saleOrder.contractno">
+          <el-input  v-model="planform.saleOrder.contractno"></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="交货方式" prop="saleOrder.deliverway">
+          <el-select v-model="planform.saleOrder.deliverway" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in deliverway"
+              :key="item.value"
+              :label="item.name"
+              :value="item.value">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="合同编号" prop="saleOrder.contractno">
-          <el-input  v-model="planform.saleOrder.contractno"></el-input>
+        <el-form-item label="发出仓库" prop="saleOrder.store" v-if="planform.saleOrder.deliverway == 1">
+          <el-select v-model="planform.saleOrder.store" filterable clearable placeholder="发出仓库" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in revstoreList"
+              :key="item.id"
+              :label="item.storename"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -328,6 +340,7 @@ export default {
           customerorderno: '', // 客户订单号
           sumtaxamount: '', // 税额
           store: '', // 发出仓库
+          storename: '', // 发出仓库
           closed: '', // 完结标示
           memos: '', // 备注
           enquiryorder: this.$route.params.enquiryorder // 来源计划单号
@@ -377,6 +390,9 @@ export default {
           ],
           recmethod: [
             { required: true, message: '请选择付款方式', trigger: 'change' }
+          ],
+          store: [
+            { required: true, message: '请选择发货仓库', trigger: 'change' }
           ]
         },
         saleOrderItems: [
@@ -444,6 +460,17 @@ export default {
       }
       return tname
     },
+    storename() {
+      let tname = ''
+      if (this.revstoreList.length) {
+        this.revstoreList.map(d => {
+          if (d.requestid === this.planform.saleOrder.store) {
+            tname = d.storename
+          }
+        })
+      }
+      return tname
+    },
     ...mapGetters({
       company: 'company',
       companyId: 'companyId',
@@ -459,6 +486,9 @@ export default {
   created() {
     if (!this.gridData.length) {
       this.$store.dispatch('GetGysList')
+    }
+    if (!this.revstoreList.length) {
+      this.$store.dispatch('GetStoreList')
     }
     if (!this.$route.params.enquiryorder) {
       this.$alert('请先选择计划单再创建销售单').then(_ => {
@@ -508,6 +538,7 @@ export default {
           postData.saleOrder.createuser = this.userInfo.truename
           postData.saleOrder.planarrivedate = parseTime(this.planform.saleOrder.planarrivedate)
           postData.saleOrder.sumorderamount = this.sumorderamount
+          postData.saleOrder.storename = this.storename
           addOrUpdateSaleOrder(postData).then(
             res => {
               console.log(res)

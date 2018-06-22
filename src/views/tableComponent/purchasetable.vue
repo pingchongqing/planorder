@@ -3,8 +3,9 @@
     :data="list"
     style="width: 100%"
     v-loading="loading"
-    border
-    max-height="600">
+    show-summary
+    :summary-method="getSummaries"
+    border>
     <el-table-column
       label="状态"
       fixed="left"
@@ -61,6 +62,13 @@
       width="200">
       <template slot-scope="scope">
         <span>{{ scope.row.contractno }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
+      label="采购金额"
+      width="120">
+      <template slot-scope="scope">
+        <span>{{ scope.row.sumamount }}</span>
       </template>
     </el-table-column>
     <el-table-column
@@ -145,7 +153,7 @@
 <script>
 import { parseTime } from '@/utils'
 export default {
-  props: ['list', 'loading'],
+  props: ['list', 'loading', 'totalorder', 'totalamount'],
   filters: {
     parseTime,
     statusFilter(val) {
@@ -189,6 +197,19 @@ export default {
           ticketno: row.ticketno
         }
       })
+    },
+    getSummaries(param) {
+      const { columns } = param
+      const sums = []
+      sums[0] = '合计'
+      columns.forEach((column, index) => {
+        if (column.label === '订单数量') {
+          sums[index] = this.totalorder
+        } else if (column.label === '采购金额') {
+          sums[index] = this.totalamount
+        }
+      })
+      return sums
     }
   }
 }

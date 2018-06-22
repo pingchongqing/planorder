@@ -82,14 +82,17 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">查询</el-button>
-          <el-button @click="onCancel">重置</el-button>
+        <el-form-item label="合同编号" prop="purchorder.contractno">
+          <el-input type="text" v-model="planform.purchorder.contractno" ></el-input>
         </el-form-item>
       </el-col>
     </el-row>
+    <el-form-item label-width="400px">
+      <el-button type="primary" @click="onSubmit">查询</el-button>
+      <el-button @click="onCancel">重置</el-button>
+    </el-form-item>
     <div class="itemscont">
-      <purchasetable :list="list" :loading="loading"></purchasetable>
+      <purchasetable :list="list" :loading="loading" :totalorder="totalorder" :totalamount="totalamount"></purchasetable>
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentPageChange"
@@ -132,7 +135,7 @@ export default {
           sumfactrecnum: '', // 已收数量
           sumamount: '', // 金额合计
           memos: '', // 备注
-          customerorderno: '', // 合同号
+          contractno: '', // 合同号
           linkusername: '', // 收货联系人
           linktel: '', // 收货联系电话
           receiveaddress: '', // 收货地址
@@ -214,7 +217,9 @@ export default {
           name: '先款后货',
           value: '3'
         }
-      ]
+      ],
+      totalorder: '',
+      totalamount: ''
     }
   },
   computed: {
@@ -331,6 +336,8 @@ export default {
         this.list = res.data.purchorders
         this.total = res.data.total
         this.currentPage = res.data.currentPage
+        this.totalorder = res.data.sumOrderNum
+        this.totalamount = res.data.sumAmount
         this.loading = false
         console.log(res)
       }).catch(err => {

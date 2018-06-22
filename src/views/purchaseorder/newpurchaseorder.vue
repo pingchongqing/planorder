@@ -364,7 +364,7 @@ export default {
           closed: '', // 完结标识  0未完结 1完结
           rate: '', // 税率（%）
           paymethod: '', // 付款方式 1货到付款2预付款
-          enquiryorder: this.$route.params.enquiryorder // 来源计划单号
+          enquiryorder: '' // 来源计划单号
         },
         purchorderItems: [
           // {
@@ -505,15 +505,7 @@ export default {
     if (this.$route.query.id) {
       this.getDetail()
     }
-  },
-  beforeRouteLeave(to, from, next) {
-    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      next()
-    }).catch(() => {})
+    this.planform.purchorder.enquiryorder = this.$route.params.enquiryorder
   },
   methods: {
     addProduct() {
@@ -635,7 +627,6 @@ export default {
     },
     goeditrow(index) {
       this.planform.purchorderItems[index].edit = true
-      this.planform = JSON.parse(JSON.stringify(this.planform))
     },
     handleExceed(files, fileList) {
       this.$message.warning(`当前限制选择上传 1 个文件`)

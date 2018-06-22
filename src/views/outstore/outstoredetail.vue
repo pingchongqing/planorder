@@ -27,7 +27,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="收货企业" prop="outOrder.enterprisename">
-          {{planform.outOrder.enterprisename}}
+          {{planform.outOrder.customername}}
         </el-form-item>
       </el-col>
       <el-col :span="8">

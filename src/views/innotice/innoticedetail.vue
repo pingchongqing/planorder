@@ -31,7 +31,7 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="送货供应商" >
-          {{planform.innotice.enterprisename}}
+          {{planform.innotice.servicername}}
         </el-form-item>
       </el-col>
       <el-col :span="8">
@@ -180,6 +180,8 @@ export default {
           indate: '', // 入库日期
           enterprise: '', // 平台企业
           enterprisename: '', // 平台企业 （裕大）
+          servicer: '',
+          servicername: '',
           createuser: '', // 创建人
           createdate: '', // 创建日期
           status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）

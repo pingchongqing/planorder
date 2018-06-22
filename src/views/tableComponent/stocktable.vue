@@ -3,8 +3,7 @@
     :data="list"
     style="width: 100%"
     v-loading="loading"
-    border
-    max-height="600">
+    border>
     <el-table-column
       label="商品名称"
       fixed="left"

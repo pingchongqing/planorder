@@ -126,7 +126,7 @@ export default {
           memos: '', // 备注
           quotationdate: '', // 报价日期
           status: '', // 状态--1（草稿） 0（待审核） 1(确认通过) -2（ 驳回 ）
-          sumamount: 0, // 金额合计
+          sumamount: '', // 金额合计
           ticketno: '',
           postquotationdate: [],
           postcreatedate: []

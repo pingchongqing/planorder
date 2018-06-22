@@ -176,6 +176,10 @@
           {
             name: '服务费',
             value: '2'
+          },
+          {
+            name: '投标保证金',
+            value: '3'
           }
         ],
         settlementmethod: [

@@ -3,8 +3,8 @@
   <el-form :model="planform" :rules="rules" ref="ruleForm" label-width="120px">
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="收货企业" prop="outNotice.enterprise">
-          <el-select v-model="planform.outNotice.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
+        <el-form-item label="收货企业" prop="outNotice.customer">
+          <el-select v-model="planform.outNotice.customer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" disabled>
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -198,6 +198,8 @@ export default {
           outdate: '', // 计划到达日期
           enterprise: '', // 平台企业
           enterprisename: '', // 平台企业 （裕大）
+          customer: '', // --收货企业
+          customername: '',
           createuser: '', // 创建人
           createdate: '', // 创建日期
           status: '', // -2（ 驳回 ） -1（草稿） 0（待审核）1（确认通过）

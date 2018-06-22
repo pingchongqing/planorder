@@ -490,13 +490,13 @@ export default {
       if (res.code === '200') {
         this.$confirm(res.message, '提示', {
           confirmButtonText: '完成',
-          cancelButtonText: '继续导入',
+          cancelButtonText: '重新导入',
           type: 'success'
         }).then(_ => {
           this.dialogVisible = false
         }).catch(_ => {})
         res.data.map(row => { row.edit = false })
-        this.planform.quotationItems = [...this.planform.quotationItems, ...res.data]
+        this.planform.quotationItems = [...res.data]
       } else {
         this.$message({
           message: res.message,

@@ -230,6 +230,10 @@
           {
             name: '服务费',
             value: '2'
+          },
+          {
+            name: '投标保证金',
+            value: '3'
           }
         ],
         settlementmethod: [
@@ -305,6 +309,7 @@
         switch (parseInt(val)) {
           case 1: return '货款'
           case 2: return '服务费'
+          case 3: return '投标保证金'
           default: return ''
         }
       }
