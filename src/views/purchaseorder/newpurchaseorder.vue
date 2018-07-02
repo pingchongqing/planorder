@@ -279,6 +279,7 @@
       :action="uploadUrl"
       :limit="1"
       :file-list = "fileList"
+      :before-upload="beforeUpload"
       :on-exceed="handleExceed"
       name="myFile"
       :accept="'.xls,.xlsx'"
@@ -508,6 +509,13 @@ export default {
     this.planform.purchorder.enquiryorder = this.$route.params.enquiryorder
   },
   methods: {
+    beforeUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.upload.abort(file)
+      }
+    },
     addProduct() {
       this.productvisible = true
     },

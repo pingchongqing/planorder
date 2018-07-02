@@ -239,6 +239,7 @@
       :limit="1"
       :file-list = "fileList"
       :on-exceed="handleExceed"
+      :before-upload="beforeUpload"
       name="myFile"
       :accept="'.xls,.xlsx'"
       :on-change="handelUploadChange"
@@ -403,6 +404,13 @@ export default {
     }).catch(() => {})
   },
   methods: {
+    beforeUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.upload.abort(file)
+      }
+    },
     getDetail() {
       GetQuotationDetail({ ticketno: this.$route.query.id }).then(
         res => {

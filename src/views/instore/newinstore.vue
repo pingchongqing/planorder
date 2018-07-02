@@ -311,7 +311,7 @@ export default {
       // 如果上传文件大于5M
       if (file.size > 5000 * 1000) {
         this.$message.error('上传附件不能大于5M')
-        this.$refs.upload.abort()
+        this.$refs.upload.abort(file)
       }
     },
     getDetail() {
