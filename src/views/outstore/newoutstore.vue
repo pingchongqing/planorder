@@ -154,6 +154,7 @@
       :action="uploadUrl"
       :limit="1"
       :file-list = "fileList"
+      :before-upload="beforeUpload"
       :on-exceed="handleExceed"
       name="myFile"
       :on-change="handelUploadChange"
@@ -311,6 +312,13 @@ export default {
     }).catch(() => {})
   },
   methods: {
+    beforeUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.upload.abort()
+      }
+    },
     getDetail() {
       OutStoreDetail({ ticketno: this.$route.query.id }).then(
         res => {

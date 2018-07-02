@@ -53,8 +53,7 @@
         :data="list"
         style="width: 100%"
         v-loading="loading"
-        border
-        max-height="600">
+        border>
         <el-table-column
           label="出库单号"
           fixed="left"
@@ -103,6 +102,13 @@
           width="100">
           <template slot-scope="scope">
             <span>{{ scope.row.outnum }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="出库金额"
+          width="100">
+          <template slot-scope="scope">
+            <span>{{ scope.row.outamount }}</span>
           </template>
         </el-table-column>
         <el-table-column

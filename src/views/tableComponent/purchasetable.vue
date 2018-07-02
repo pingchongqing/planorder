@@ -86,6 +86,13 @@
       </template>
     </el-table-column>
     <el-table-column
+      label="到达仓库"
+      width="100">
+      <template slot-scope="scope">
+        <span>{{ scope.row.revstorename }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
       label="供应商"
       width="160">
       <template slot-scope="scope">

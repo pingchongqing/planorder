@@ -85,8 +85,7 @@
         v-loading="loading"
         ref="multipleTable"
         border
-        @selection-change="handleSelectionChange"
-        max-height="600">
+        @selection-change="handleSelectionChange">
         <el-table-column
           type="selection"
           fixed="left"

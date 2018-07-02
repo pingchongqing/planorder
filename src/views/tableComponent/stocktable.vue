@@ -41,6 +41,13 @@
       </template>
     </el-table-column>
     <el-table-column
+      width="160"
+      label="采购单号">
+      <template slot-scope="scope">
+        <span>{{ scope.row.purchorder }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
       label="库存单位"
       width="100">
       <template slot-scope="scope">

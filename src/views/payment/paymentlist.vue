@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="付款单号" prop="payment.ticketno">
-              <el-input type="text" v-model="paymentform.payment.ticketno"></el-input>
+            <el-input type="text" v-model="paymentform.payment.ticketno"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -64,19 +64,25 @@
         </el-col>
       </el-row>
       <el-row>
-        <el-col :span="8">
+        <el-col :span="10">
           <el-form-item label="付款日期" prop="payment.paydate">
             <el-date-picker
-              v-model="paymentform.payment.paydate"
-              type="date"
+              v-model="paymentform.payment.postpaydate"
+              type="datetimerange"
               :editable="false"
-              placeholder="选择日期时间"
-              align="right">
+              range-separator="至"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期">
             </el-date-picker>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label-width="0" >
+        <el-col :span="6">
+          <el-form-item label="合同编号" prop="payment.contractno">
+            <el-input type="text" v-model="paymentform.payment.contractno"></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="6">
+          <el-form-item label-width="120px" >
             <el-button type="primary" @click="onSubmit">查询</el-button>
             <el-button @click="onCancel">重置</el-button>
           </el-form-item>
@@ -105,7 +111,7 @@
             width="200"
             label="付款方">
             <template slot-scope="scope">
-              <span>{{ scope.row.enterpricename }}</span>
+              <span>{{ scope.row.enterprisename }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -133,7 +139,14 @@
             label="来源采购订单"
             width="200">
             <template slot-scope="scope">
-              <span>{{ scope.row.purchorder }}</span>
+              <el-button type="text" @click="viewpurchorderRow(scope.row)">{{scope.row.purchorder}}</el-button>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="合同编号"
+            width="200">
+            <template slot-scope="scope">
+              <span>{{ scope.row.contractno }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -189,7 +202,7 @@
 <script>
   import { getPaymentDetail } from '@/api/payment'
   import { mapGetters } from 'vuex'
-  import { parseTime } from '@/utils'
+  import { parseTime, SettlementMethod, Fundnature } from '@/utils'
   export default {
     data() {
       return {
@@ -197,9 +210,10 @@
           payment: {
             createuser: '', // 创建人
             enclosure: '', // 金额
-            enterprice: '', // 企业
-            enterpricename: '', // 企业名称
+            enterprise: '', // 企业
+            enterprisename: '', // 企业名称
             fundnature: '', // 款项性质 1货款 2服务费
+            contractno: '', // 合同编号
             memos: '', // 备注
             payamount: '', // 付款金额
             paydate: '', // 付款日期
@@ -209,7 +223,8 @@
             receivables: '', // 收款方
             receivablesname: '', // 收款方名称
             settlementmethod: '', // 结算方式 1现金 2银行转账 3银行承兑 4商业承兑
-            status: '' // 状态
+            status: '', // 状态
+            postpaydate: []
           }
         },
         paymentStatus: [
@@ -222,38 +237,8 @@
             value: '1'
           }
         ],
-        fundnature: [
-          {
-            name: '货款',
-            value: '1'
-          },
-          {
-            name: '服务费',
-            value: '2'
-          },
-          {
-            name: '投标保证金',
-            value: '3'
-          }
-        ],
-        settlementmethod: [
-          {
-            name: '现金',
-            value: '1'
-          },
-          {
-            name: '银行转账',
-            value: '2'
-          },
-          {
-            name: '银行承兑',
-            value: '3'
-          },
-          {
-            name: '商业承兑',
-            value: '4'
-          }
-        ],
+        fundnature: Fundnature,
+        settlementmethod: SettlementMethod,
         list: [],
         pagesize: 10,
         pageindex: 1,
@@ -286,33 +271,7 @@
       })
     },
     filters: {
-      parseTime,
-      settlementmethodFilter(val) {
-        switch (parseInt(val)) {
-          case 1: return '现金'
-          case 2: return '银行转账'
-          case 3: return '银行承兑'
-          case 4: return '商业承兑'
-          default: return ''
-        }
-      },
-      statusFilter(val) {
-        switch (parseInt(val)) {
-          case -1: return '草稿'
-          case 0: return '待审核'
-          case 1: return '确认通过'
-          case -2: return '驳回'
-          default: return ''
-        }
-      },
-      fundnatureFilter(val) {
-        switch (parseInt(val)) {
-          case 1: return '货款'
-          case 2: return '服务费'
-          case 3: return '投标保证金'
-          default: return ''
-        }
-      }
+      parseTime
     },
     created() {
       if (!this.gridData.length) {
@@ -331,6 +290,11 @@
       },
       getListData() {
         const postData = this.paymentform.payment
+        if (postData.postpaydate && postData.postpaydate.length) {
+          postData.paystartdate = parseTime(postData.postpaydate[0])
+          postData.payenddate = parseTime(postData.postpaydate[1])
+          postData.paydate = ''
+        }
         const pData = {}
         for (const item of Object.keys(postData)) {
           if (postData[item] !== '') {
@@ -354,6 +318,14 @@
           name: 'paymentdetail',
           params: {
             ticketno: row.ticketno
+          }
+        })
+      },
+      viewpurchorderRow(row) {
+        this.$router.push({
+          name: 'purchaseorderdetail',
+          params: {
+            ticketno: row.purchorder
           }
         })
       },

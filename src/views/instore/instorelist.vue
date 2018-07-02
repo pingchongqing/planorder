@@ -13,8 +13,8 @@
         </el-form-item>
       </el-col>
       <el-col :span="8">
-        <el-form-item label="收货企业" prop="inorder.enterprise">
-          <el-select v-model="planform.inorder.enterprise" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
+        <el-form-item label="送货企业" prop="inorder.enterprise">
+          <el-select v-model="planform.inorder.servicer" filterable clearable placeholder="请选择" size="100%" prefix-icon="el-icon-search" >
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -53,8 +53,7 @@
         :data="list"
         style="width: 100%"
         v-loading="loading"
-        border
-        max-height="600">
+        border>
         <el-table-column
           label="入库单号"
           fixed="left"
@@ -71,10 +70,10 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="企业"
+          label="送货企业"
           width="150">
           <template slot-scope="scope">
-            <span>{{ scope.row.enterprisename }}</span>
+            <span>{{ scope.row.servicername }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -106,6 +105,13 @@
           </template>
         </el-table-column>
         <el-table-column
+          label="入库金额"
+          width="100">
+          <template slot-scope="scope">
+            <span>{{ scope.row.inamount }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="制单人"
           width="100">
           <template slot-scope="scope">
@@ -128,7 +134,7 @@
         </el-table-column>
         <el-table-column
           label="审核时间"
-          width="100">
+          width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.checkdate }}</span>
           </template>

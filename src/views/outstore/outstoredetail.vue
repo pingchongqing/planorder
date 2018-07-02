@@ -54,6 +54,11 @@
           {{planform.outOrder.outnum}}
         </el-form-item>
       </el-col>
+      <el-col :span="8">
+        <el-form-item label="出库金额" prop="outOrder.outamount">
+          ￥{{planform.outOrder.outamount}}
+        </el-form-item>
+      </el-col>
     </el-row>
     <div class="itemscont">
       <h3>
@@ -116,17 +121,37 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="备注">
+            label="出库数量"
+            width="100">
             <template slot-scope="scope">
-              <span >{{ scope.row.memos }}</span>
+              <span >{{ scope.row.outnum }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            label="出库数量"
-            fixed="right"
-            width="200">
+            label="单价"
+            width="100">
             <template slot-scope="scope">
-              <span >{{ scope.row.outnum }}</span>
+              <span >{{ scope.row.price }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="税率"
+            width="100">
+            <template slot-scope="scope">
+              <span >{{ scope.row.taxrate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="出库金额"
+            width="100">
+            <template slot-scope="scope">
+              <span >{{ scope.row.amount }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="备注">
+            <template slot-scope="scope">
+              <span >{{ scope.row.memos }}</span>
             </template>
           </el-table-column>
         </el-table>

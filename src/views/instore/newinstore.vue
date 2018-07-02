@@ -152,6 +152,7 @@
       class="upload-demo"
       ref="upload"
       :action="uploadUrl"
+      :before-upload="beforeUpload"
       :limit="1"
       :file-list = "fileList"
       :on-exceed="handleExceed"
@@ -306,6 +307,13 @@ export default {
     }).catch(() => {})
   },
   methods: {
+    beforeUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.upload.abort()
+      }
+    },
     getDetail() {
       InStoreDetail({ ticketno: this.$route.query.id }).then(
         res => {

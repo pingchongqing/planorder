@@ -266,6 +266,7 @@
       :limit="1"
       :file-list = "fileList"
       :on-exceed="handleExceed"
+      :before-upload="beforeUpload"
       :data = "uploadData"
       name="myFile"
       :accept="'.xls,.xlsx'"
@@ -449,6 +450,13 @@ export default {
     this.planform = Object.assign({}, defaultform)
   },
   methods: {
+    beforeUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.upload.abort()
+      }
+    },
     getTemplate() {
       CompanyTemplet().then(
         res => {

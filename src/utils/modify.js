@@ -1,11 +1,12 @@
 import { OrderOperate } from '@/api/planorder'
-export default function Modify(type, name) {
+export default function Modify(type, name, needfresh) {
   // 0 审核
   if (type === 0) {
     this.$prompt('请输入审核意见', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消'
     }).then(({ value }) => {
+      console.log(value)
       OrderOperate({
         ticketNo: this.$route.params.ticketno,
         checkFlag: type,
@@ -13,12 +14,16 @@ export default function Modify(type, name) {
         checkAdvice: value
       }).then(res => {
         console.log(res)
-        this.planform[name].status = 1
-        this.planform = JSON.parse(JSON.stringify(this.planform))
         this.$message({
           type: 'success',
           message: '审核成功!'
         })
+        if (needfresh) {
+          this.needfresh()
+        } else {
+          this.planform[name].status = 1
+          this.planform = JSON.parse(JSON.stringify(this.planform))
+        }
       }).catch(err => {
         console.log(err)
         this.$message({

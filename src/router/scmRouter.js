@@ -2,6 +2,7 @@ const _import = require('./_import_' + process.env.NODE_ENV)
 
 /* Layout */
 import Layout from '../views/layout/Layout'
+import { reportCenterUrl } from '@/utils'
 
 export default [{
   path: '/planorder',
@@ -365,6 +366,158 @@ export default [{
   ]
 },
 {
+  path: '/receivable',
+  component: Layout,
+  redirect: '/receivable/newreceivable',
+  name: 'receivable',
+  meta: { title: '收款管理', icon: 'tree', roles: ['service_finance'] }, // you can set roles in root nav
+  children: [
+    {
+      path: 'newreceivable',
+      component: _import('receivable/newreceivable'),
+      name: 'newreceivable',
+      meta: {
+        title: '新建收款单',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'receivablelist',
+      component: _import('receivable/receivablelist'),
+      name: 'receivablelist',
+      meta: {
+        title: '收款单查询',
+        icon: 'search',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'receivabledetail/:ticketno',
+      component: _import('receivable/receivabledetail'),
+      hidden: true,
+      name: 'receivabledetail',
+      meta: {
+        title: '收款单详情',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    }
+  ]
+},
+{
+  path: '/invoice/inputinvoice',
+  component: Layout,
+  redirect: '/invoice/inputinvoice/newinputinvoice',
+  name: 'inputinvoice',
+  meta: { title: '进项发票', icon: 'tree', roles: ['service_finance'] }, // you can set roles in root nav
+  children: [
+    {
+      path: 'newinputinvoice',
+      component: _import('invoice/inputinvoice/newinputinvoice'),
+      name: 'newinputinvoice',
+      meta: {
+        title: '新建进项发票',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'inputinvoicelist',
+      component: _import('invoice/inputinvoice/inputinvoicelist'),
+      name: 'inputinvoicelist',
+      meta: {
+        title: '进项发票查询',
+        icon: 'search',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'inputinvoicedetail/:ticketno',
+      component: _import('invoice/inputinvoice/inputinvoicedetail'),
+      hidden: true,
+      name: 'inputinvoicedetail',
+      meta: {
+        title: '进项发票详情',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    }
+  ]
+},
+{
+  path: '/invoice/outputinvoice',
+  component: Layout,
+  redirect: '/invoice/outputinvoice/newoutputinvoice',
+  name: 'outputinvoice',
+  meta: { title: '销项发票', icon: 'tree', roles: ['service_finance'] }, // you can set roles in root nav
+  children: [
+    {
+      path: 'newoutputinvoice',
+      component: _import('invoice/outputinvoice/newoutputinvoice'),
+      name: 'newoutputinvoice',
+      meta: {
+        title: '申请销项发票',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'outputinvoicelist',
+      component: _import('invoice/outputinvoice/outputinvoicelist'),
+      name: 'outputinvoicelist',
+      meta: {
+        title: '开票申请查询',
+        icon: 'search',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'outputinvoiceresultlist',
+      component: _import('invoice/outputinvoice/outputinvoiceresultlist'),
+      name: 'outputinvoiceresultlist',
+      meta: {
+        title: '开票结果查询',
+        icon: 'search',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'outputinvoicedetail/:ticketno',
+      component: _import('invoice/outputinvoice/outputinvoicedetail'),
+      hidden: true,
+      name: 'outputinvoicedetail',
+      meta: {
+        title: '销项开票申请详情',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'outputinvoiceresultdetail/:ticketno',
+      component: _import('invoice/outputinvoice/outputinvoiceresultdetail'),
+      hidden: true,
+      name: 'outputinvoiceresultdetail',
+      meta: {
+        title: '销项开票详情',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    },
+    {
+      path: 'makeoutinvoice/:ticketno',
+      component: _import('invoice/outputinvoice/makeoutinvoice'),
+      hidden: true,
+      name: 'makeoutinvoice',
+      meta: {
+        title: '财务开票',
+        icon: 'form',
+        roles: ['service_finance']
+      }
+    }
+  ]
+},
+{
   path: '/stock',
   component: Layout,
   redirect: '/stock/stocklist',
@@ -378,6 +531,44 @@ export default [{
       meta: {
         title: '库存查询',
         icon: 'stock'
+      }
+    }
+  ]
+},
+{
+  name: 'reportcenter',
+  path: '/reportcenter',
+  outLinkUrl: reportCenterUrl('supply_invin_main'),
+  meta: { title: '报表中心', icon: 'stock' },
+  children: [
+    {
+      name: 'supply_invin_main',
+      path: 'supply_invin_main',
+      outLinkUrl: reportCenterUrl('supply_invin_main'),
+      meta: {
+        title: '采购入库明细表',
+        icon: 'stock',
+        roles: ['service_finance']
+      }
+    },
+    {
+      name: 'supply_invout_main',
+      path: 'supply_invout_main',
+      outLinkUrl: reportCenterUrl('supply_invout_main'),
+      meta: {
+        title: '销售出库明细表',
+        icon: 'stock',
+        roles: ['service_finance']
+      }
+    },
+    {
+      name: 'supply_stock',
+      path: 'supply_stock',
+      outLinkUrl: reportCenterUrl('supply_stock'),
+      meta: {
+        title: '库存明细表',
+        icon: 'stock',
+        roles: ['service_finance']
       }
     }
   ]

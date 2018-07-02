@@ -293,7 +293,9 @@
 import { addOrUpdateSaleOrder, SaleDetailInfo } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
+// const newsaleform = {}
 export default {
+  name: 'newsaleorder',
   data() {
     var checkDetail = (rule, value, callback) => {
       if (!value.length) {
@@ -500,21 +502,17 @@ export default {
     if (this.$route.query.id) {
       this.getDetail()
     }
-    this.getplanInfo()
   },
-  beforeRouteLeave(to, from, next) {
-    this.$confirm('离开页面后输入内容将不被保存，确定离开吗?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    }).then(() => {
-      next()
-    }).catch(() => {})
-  },
+  // activated() {
+  //   console.log(newsaleform)
+  //   if (newsaleform[this.$route.path]) {
+  //     this.planform = newsaleform[this.$route.path]
+  //   }
+  // },
+  // deactivated() {
+  //   newsaleform[this.$route.path] = JSON.parse(JSON.stringify(this.planform))
+  // },
   methods: {
-    getplanInfo() {
-
-    },
     getDetail() {
       SaleDetailInfo({ ticketno: this.$route.query.id }).then(
         res => {

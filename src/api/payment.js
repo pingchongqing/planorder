@@ -17,3 +17,12 @@ export function getPaymentDetail(data) {
     data: data
   })
 }
+
+// 选择采购单 POST /api/payment/createPayment
+export function createPayment(data) {
+  return request({
+    url: '/jqmapi/api/payment/createPayment',
+    method: 'post',
+    data: data
+  })
+}

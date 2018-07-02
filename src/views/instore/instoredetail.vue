@@ -54,6 +54,11 @@
           {{planform.inorder.innum}}
         </el-form-item>
       </el-col>
+      <el-col :span="8">
+        <el-form-item label="入库金额" prop="inorder.sumordernum">
+          {{planform.inorder.inamount}}
+        </el-form-item>
+      </el-col>
     </el-row>
     <div class="itemscont">
       <h3>
@@ -116,17 +121,37 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="备注">
-            <template slot-scope="scope">
-              <span >{{ scope.row.memos }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
             label="入库数量"
-            fixed="right"
             width="100">
             <template slot-scope="scope">
               <span >{{ scope.row.innum }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="单价"
+            width="100">
+            <template slot-scope="scope">
+              <span >{{ scope.row.price }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="税率"
+            width="100">
+            <template slot-scope="scope">
+              <span >{{ scope.row.taxrate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="入库金额"
+            width="100">
+            <template slot-scope="scope">
+              <span >{{ scope.row.amount }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="备注">
+            <template slot-scope="scope">
+              <span >{{ scope.row.memos }}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -199,8 +199,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="备注"
-            width="100">
+            label="备注">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
                 <el-input class="edit-input" size="small" v-model="scope.row.memos"></el-input>

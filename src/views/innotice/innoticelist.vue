@@ -85,8 +85,7 @@
         v-loading="loading"
         ref="multipleTable"
         @selection-change="handleSelectionChange"
-        border
-        max-height="600">
+        border>
         <el-table-column
           type="selection"
           fixed="left"
@@ -108,7 +107,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="送货供应商"
+          label="送货企业"
           width="150">
           <template slot-scope="scope">
             <span>{{ scope.row.servicername }}</span>
@@ -186,14 +185,13 @@
         </el-table-column>
         <el-table-column
           label="审核时间"
-          width="100">
+          width="180">
           <template slot-scope="scope">
             <span>{{ scope.row.checkdate }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="备注"
-          width="100">
+          label="备注">
           <template slot-scope="scope">
             <span >{{ scope.row.memos }}</span>
           </template>

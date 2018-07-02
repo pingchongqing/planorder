@@ -67,5 +67,94 @@ export function printUrl(name, ticketno) {
   }
 }
 
+export function reportCenterUrl(name) {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return 'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL_TEST/' + name + '.cpt'
+  } else if (process.env.NODE_ENV === 'production') {
+    return 'http://nb.csjscm.com:9999/WebReport/ReportServer?reportlet=/HALL/' + name + '.cpt'
+  }
+}
+
 // export const LoginPath = process.env.NODE_ENV === 'development' ? 'http://192.168.1.224:8080' : 'http://sso.csjscm.com'
 export const LoginPath = 'http://sso.csjscm.com'
+
+export const Fundnature = [
+  {
+    name: '货款',
+    value: 1
+  },
+  {
+    name: '服务费',
+    value: 2
+  },
+  {
+    name: '投标保证金',
+    value: 3
+  }
+]
+export const SettlementMethod = [
+  {
+    name: '现金',
+    value: 1
+  },
+  {
+    name: '银行转账',
+    value: 2
+  },
+  {
+    name: '银行承兑',
+    value: 3
+  },
+  {
+    name: '商业承兑',
+    value: 4
+  },
+  {
+    name: '支票',
+    value: 5
+  }
+]
+
+// 发票类型1增值税专用发票 2增值税普通发票 3普通发票 4无票收入
+
+export const InvoiceType = [
+  {
+    name: '增值税专用发票',
+    value: '1'
+  },
+  {
+    name: '增值税普通发票',
+    value: '2'
+  },
+  {
+    name: '普通发票',
+    value: '3'
+  },
+  {
+    name: '无票收入',
+    value: '4'
+  }
+]
+
+export const Status = [
+  {
+    name: '草稿', value: '-1'
+  },
+  {
+    name: '待审核', value: '0'
+  },
+  {
+    name: '确认通过', value: '1'
+  },
+  {
+    name: '驳回', value: '-2'
+  }
+]
+
+export function downloadFile(file) {
+  if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+    return 'http://testscm.csjmro.com/file' + file
+  } else if (process.env.NODE_ENV === 'production') {
+    return 'http://scm.csjmro.com/file' + file
+  }
+}

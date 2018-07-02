@@ -1,5 +1,7 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+import store from '@/store'
+import { Message, MessageBox } from 'element-ui'
+import { LoginPath } from '@/utils'
 // import store from '../store'
 // import { getToken } from '@/utils/auth'
 
@@ -36,11 +38,15 @@ service.interceptors.response.use(
       })
 
       // 512:未登录;
-      // if (res.code === '512') {
-      //   store.dispatch('LogOut').then(() => {
-      //     location.reload()// 为了重新实例化vue-router对象 避免bug
-      //   })
-      // }
+      if (res.code === '512') {
+        MessageBox.alert('验证失败,请重新登录').then(_ => {
+          store.dispatch('LogOut').then(() => {
+            location.href = `${LoginPath}/logout?service=${location.origin}/csj_login`
+          }).catch(() => {
+            location.href = `${LoginPath}/logout?service=${location.origin}/csj_login`
+          })
+        })
+      }
       return Promise.reject(res)
     } else {
       return response.data

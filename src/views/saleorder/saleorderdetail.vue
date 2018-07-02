@@ -151,7 +151,7 @@
             label="销售金额"
             width="100">
             <template slot-scope="scope">
-              <span>{{ scope.row.saleprice*scope.row.ordernum }}</span>
+              <span>{{ (scope.row.saleprice*scope.row.ordernum).toFixed(2) }}</span>
             </template>
           </el-table-column>
           <el-table-column

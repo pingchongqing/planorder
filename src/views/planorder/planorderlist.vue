@@ -158,7 +158,9 @@
 import { List } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime, printUrl } from '@/utils'
+let self = {}
 export default {
+  name: 'planorderlist',
   data() {
     return {
       planform: {
@@ -185,6 +187,7 @@ export default {
           postenquirydate: []
         }
       },
+      postform: {},
       loading: false,
       list: [],
       pagesize: 10,
@@ -232,7 +235,25 @@ export default {
     if (!this.gridData.length) {
       this.$store.dispatch('GetGysList')
     }
-    this.getListData()
+  },
+  mounted() {
+    this.$nextTick(() => {
+      if (!this.activated) {
+        this.getListData()
+      }
+    })
+  },
+  activated() {
+    this.activated = true
+    this.planform = self.planform
+    this.list = self.list
+    this.pagesize = self.pagesize
+    this.pageindex = self.pageindex
+    this.total = self.total
+    this.currentPage = self.currentPage
+  },
+  deactivated() {
+    self = Object.assign({}, this)
   },
   methods: {
     printUrl,
@@ -245,7 +266,7 @@ export default {
       this.getListData()
     },
     getListData() {
-      const postData = this.planform.enquiryOrder
+      const postData = this.postform
       if (postData.postenquirydate && postData.postenquirydate.length) {
         postData.enquirystartsdate = parseTime(postData.postenquirydate[0])
         postData.enquiryendsdate = parseTime(postData.postenquirydate[1])
@@ -264,6 +285,9 @@ export default {
       })
     },
     onSubmit() {
+      this.postform = this.planform.enquiryOrder
+      this.pageindex = 1
+      this.pagesize = 10
       this.getListData()
     },
     viewRow(row) {
@@ -279,6 +303,8 @@ export default {
         enquiryOrder: {},
         enquiryOrderItems: []
       }
+      this.pagesize = 10
+      this.pageindex = 1
     }
   }
 }
