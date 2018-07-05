@@ -22,8 +22,8 @@
         <el-form-item label="来源计划单">
           <el-input v-model="postForm.enquiryorder" placeholder="来源计划单号"></el-input>
         </el-form-item>
-        <el-form-item label="供应商">
-          <el-select v-model="postForm.customer" filterable clearable placeholder="请选择供应商"  prefix-icon="el-icon-search">
+        <el-form-item label="客户">
+          <el-select v-model="postForm.customer" filterable clearable placeholder="请选择客户"  prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"

@@ -296,7 +296,7 @@ export default {
         postData.voiceenddate = parseTime(postData.postinvoicedate[1])
         postData.voicedate = ''
       }
-      if (postData.createdate) {
+      if (postData.createdate && typeof (postData.createdate) === 'object') {
         postData.createdate = this.parseTime(postData.createdate, '{y}-{m}-{d}')
       }
       // if (postData.postcreatedate && postData.postcreatedate.length) {

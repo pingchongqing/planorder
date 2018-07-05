@@ -2,16 +2,33 @@
 <div class="app-container">
   <sticky :className="'sub-navbar published'">
     <template v-if="fetchSuccess">
-      <a :href="printUrl('bss_enquiryorder', $route.params.ticketno)" target="_blank">
-        <el-button style="margin-left: 10px;" v-loading="downloadLoading">
-          导出询价单
-        </el-button>
-      </a>
-      <template v-if="isallow || isallownew">
-        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记供应商报价单</el-button>
-        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '0')">登记给客户报价单</el-button>
-        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
-        <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
+      <template v-if="planform.enquiryOrder.status == 1">
+        <a :href="printUrl('bss_enquiryorder', $route.params.ticketno)" target="_blank">
+          <el-button style="margin-left: 10px;" v-loading="downloadLoading">
+            导出询价单
+          </el-button>
+        </a>
+        <template v-if="isallow || isallownew">
+          <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '1')">登记供应商报价单</el-button>
+          <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newquotationorder', '0')">登记给客户报价单</el-button>
+          <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newsaleorder')">登记销售单</el-button>
+          <el-button  style="margin-left: 10px;" type="success"  @click="nextpage('newpurchaseorder')">登记采购单</el-button>
+        </template>
+      </template>
+      <template v-else-if="planform.enquiryOrder.status == -1 || planform.enquiryOrder.status == -2">
+        <el-button  style="margin-left: 10px;" type="warning" @click="Modify(3, 'enquiryOrder')">删除</el-button>
+        <el-button  style="margin-left: 10px;"  @click="Modify(4, 'enquiryOrder')">作废</el-button>
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button>
+      </template>
+      <template v-else-if="planform.enquiryOrder.status == 0 && isallow">
+        <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'enquiryOrder')">审核</el-button>
+        <el-button  style="margin-left: 10px;"  @click="Modify(1, 'enquiryOrder')">驳回</el-button>
+      </template>
+      <template v-else-if="planform.enquiryOrder.status == 2">
+        <el-tag >已作废的计划单</el-tag>
+      </template>
+      <template v-else>
+        <el-tag >暂无操作</el-tag>
       </template>
     </template>
     <template v-else>
@@ -73,6 +90,31 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="供货期" prop="enquiryOrder.supplydate">
+              {{planform.enquiryOrder.supplydate ? planform.enquiryOrder.supplydate : '无'}}
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="质保期">
+              {{planform.enquiryOrder.warrantydate ? planform.enquiryOrder.warrantydate : '无'}}
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="附件" >
+              <a :href="downloadFile(planform.enquiryOrder.enclosure)" target="_blank" v-if="planform.enquiryOrder.enclosure">下载附件</a>
+              <span v-else>暂无附件</span>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="备注" >
+              {{planform.enquiryOrder.memos ? planform.enquiryOrder.memos : '无'}}
+            </el-form-item>
+          </el-col>
+        </el-row>
         <div class="itemscont">
           <h3>
             计划单物品明细
@@ -108,6 +150,13 @@
                 width="120">
                 <template slot-scope="scope">
                   <span>{{ scope.row.categoryname }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="客户商品编码"
+                width="120">
+                <template slot-scope="scope">
+                  <span>{{ scope.row.custommaterialno }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -161,52 +210,10 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="质保期"
-                width="100">
+                label="使用单位"
+                width="150">
                 <template slot-scope="scope">
-                  <template v-if="scope.row.edit">
-                    <el-date-picker
-                      v-model="scope.row.warrantydate"
-                      type="datetime"
-                      :editable="false"
-                      placeholder="选择日期时间"
-                      align="right">
-                    </el-date-picker>
-                  </template>
-                  <span v-else>{{ scope.row.warrantydate }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="供货期"
-                width="100">
-                <template slot-scope="scope">
-                  <template v-if="scope.row.edit">
-                    <el-date-picker
-                      v-model="scope.row.supplydate"
-                      type="datetime"
-                      :editable="false"
-                      placeholder="选择日期时间"
-                      align="right">
-                    </el-date-picker>
-                  </template>
-                  <span v-else>{{ scope.row.supplydate }}</span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                label="供应商"
-                width="100">
-                <template slot-scope="scope">
-                  <template v-if="scope.row.edit">
-                    <el-select v-model="scope.row.servicer" filterable placeholder="请选择">
-                      <el-option
-                        v-for="item in servicers"
-                        :key="item.servicer"
-                        :label="item.servicer"
-                        :value="item.servicername">
-                      </el-option>
-                    </el-select>
-                  </template>
-                  <span v-else>{{ scope.row.servicername }}</span>
+                  <span >{{ scope.row.department }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -255,7 +262,8 @@
 import { DetailInfo, GetQuotationList, PurchorderList, SaleList } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import Sticky from '@/components/Sticky' // 粘性header组件
-import { parseTime, printUrl } from '@/utils'
+import { parseTime, printUrl, downloadFile } from '@/utils'
+import Modify from '@/utils/modify'
 import quotable from '@/views/tableComponent/quotationtable'
 import purchasetable from '@/views/tableComponent/purchasetable'
 import saletable from '@/views/tableComponent/saletable'
@@ -312,6 +320,16 @@ export default {
   },
   methods: {
     printUrl,
+    Modify,
+    downloadFile,
+    Edit() {
+      this.$router.push({
+        name: 'newplanorder',
+        query: {
+          id: this.$route.params.ticketno
+        }
+      })
+    },
     getfromservicelist(params, name) {
       this[name + 'loading'] = true
       GetQuotationList(params).then(res => {
@@ -433,5 +451,10 @@ export default {
 h3 {
   font-size: 14px;
   font-weight: normal;
+}
+.plantool {
+  background: #f7f7f7;
+  height: 50px;
+  padding: 5px;
 }
 </style>

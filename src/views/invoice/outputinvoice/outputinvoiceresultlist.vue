@@ -328,7 +328,7 @@ export default {
       this.$router.push({
         name: 'outputinvoicedetail',
         params: {
-          ticketno: row.applyticketno
+          ticketno: row.applyinvoice
         }
       })
     }

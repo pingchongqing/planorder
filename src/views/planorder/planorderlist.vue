@@ -3,20 +3,25 @@
   <el-form :model="planform" ref="ruleForm" label-width="80px">
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="询价方" prop="enquiryOrder.customer">
-          <el-select v-model="planform.enquiryOrder.customer" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
-            <el-option
-              v-for="item in gridData"
-              :key="item.id"
-              :label="item.name"
-              :value="item.requestid">
-            </el-option>
-          </el-select>
+        <el-form-item label="计划单号">
+          <el-input v-model="planform.enquiryOrder.ticketno" placeholder="请输入计划单号"  style="width:220px"></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
+        <el-form-item label="询价方" prop="enquiryOrder.customer">
+          <el-select v-model="planform.enquiryOrder.customer" filterable clearable placeholder="请搜索或选择" style="min-width:220px" prefix-icon="el-icon-search">
+            <el-option
+              v-for="item in customerList"
+              :key="item.id"
+              :label="item.name"
+              :value="item.requestid">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <!-- <el-col :span="8">
         <el-form-item label="报价方" prop="enquiryOrder.enterprise">
-          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
+          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" style="min-width:220px" prefix-icon="el-icon-search">
             <el-option
               v-for="item in gridData"
               :key="item.id"
@@ -25,10 +30,10 @@
             </el-option>
           </el-select>
         </el-form-item>
-      </el-col>
+      </el-col> -->
       <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
-          <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
+          <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择" style="min-width:220px">
             <el-option
               v-for="item in paymethod"
               :key="item.value"
@@ -40,6 +45,16 @@
       </el-col>
     </el-row>
     <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="创建日期" prop="enquiryOrder.createdate">
+          <el-date-picker
+            v-model="planform.enquiryOrder.createdate"
+            type="date"
+            placeholder="创建日期"
+            :editable="false">
+          </el-date-picker>
+        </el-form-item>
+      </el-col>
       <el-col :span="16">
         <el-form-item label="询价日期" prop="enquiryOrder.postenquirydate">
           <el-date-picker
@@ -52,11 +67,7 @@
           </el-date-picker>
         </el-form-item>
       </el-col>
-      <el-col :span="8">
-        <el-form-item label="计划单号">
-          <el-input v-model="planform.enquiryOrder.ticketno" ></el-input>
-        </el-form-item>
-      </el-col>
+
     </el-row>
     <el-form-item label-width="350px" >
       <el-button type="primary" @click="onSubmit">查询</el-button>
@@ -69,52 +80,88 @@
         v-loading="loading"
         border>
         <el-table-column
-          label="单号"
-          width="220">
+          label="计划单号[供,客,采,销]"
+          width="280">
           <template slot-scope="scope">
-            <el-button type="text" @click="viewRow(scope.row)">{{scope.row.ticketno}}</el-button>
+            <el-button type="text" @click="viewRow(scope.row.enquiryOrder)">{{scope.row.enquiryOrder.ticketno}}</el-button>
+            [{{scope.row.serviceCount}},{{scope.row.customerCount}},{{scope.row.purchCount}},{{scope.row.saleCount}}]
+          </template>
+        </el-table-column>
+        <el-table-column
+          width="80"
+          label="行数">
+          <template slot-scope="scope">
+            <span>{{ scope.row.rownum }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="200"
           label="询价企业">
           <template slot-scope="scope">
-            <span>{{ scope.row.customname }}</span>
+            <span>{{ scope.row.enquiryOrder.customname }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          width="200"
+          label="状态">
+          <template slot-scope="scope">
+            <span>{{ scope.row.enquiryOrder.status|statusFilter }}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="询价日期"
           width="200">
           <template slot-scope="scope">
-            <span>{{ scope.row.enquirydate|parseTime }}</span>
+            <span>{{ scope.row.enquiryOrder.enquirydate|parseTime }}</span>
           </template>
         </el-table-column>
         <el-table-column
           width="200"
           label="报价截止日期">
           <template slot-scope="scope">
-            <span>{{ scope.row.enquiryenddate }}</span>
+            <span>{{ scope.row.enquiryOrder.enquiryenddate }}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="付款方式"
           width="120">
           <template slot-scope="scope">
-            <span >{{ scope.row.paymethod|paymethodFilter }}</span>
+            <span >{{ scope.row.enquiryOrder.paymethod|paymethodFilter }}</span>
           </template>
         </el-table-column>
+        <!-- <el-table-column
+          label="供货期"
+          width="120">
+          <template slot-scope="scope">
+            <span >{{ scope.row.enquiryOrder.supplydate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="质保期"
+          width="120">
+          <template slot-scope="scope">
+            <span >{{ scope.row.enquiryOrder.warrantydate }}</span>
+          </template>
+        </el-table-column> -->
         <el-table-column
           label="创建人"
           width="100">
           <template slot-scope="scope">
-            <span>{{ scope.row.createuser }}</span>
+            <span>{{ scope.row.enquiryOrder.createuser }}</span>
           </template>
         </el-table-column>
         <el-table-column
           label="创建日期"
           width="200">
           <template slot-scope="scope">
-            <span>{{ scope.row.createdate }}</span>
+            <span>{{ scope.row.enquiryOrder.createdate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="备注"
+          width="200">
+          <template slot-scope="scope">
+            <span>{{ scope.row.enquiryOrder.memos }}</span>
           </template>
         </el-table-column>
         <!-- <el-table-column
@@ -134,7 +181,7 @@
           fixed="right"
           label="操作">
           <template slot-scope="scope">
-            <a :href="printUrl('bss_enquiryorder_schedule', scope.row.ticketno)" target="_blank">
+            <a :href="printUrl('bss_enquiryorder_schedule', scope.row.enquiryOrder.ticketno)" target="_blank">
               <el-button type="text">查看进度</el-button>
             </a>
           </template>
@@ -158,7 +205,6 @@
 import { List } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime, printUrl } from '@/utils'
-let self = {}
 export default {
   name: 'planorderlist',
   data() {
@@ -184,6 +230,7 @@ export default {
           enquirydate: '', // 询价日期
           enquiryenddate: '', // 询价截止日期
           paymethod: '', // 付款方式
+          ordertype: null,
           postenquirydate: []
         }
       },
@@ -211,6 +258,9 @@ export default {
     }
   },
   computed: {
+    customerList() {
+      return this.gridData.filter(d => d.purchase === 1)
+    },
     ...mapGetters({
       company: 'company',
       companyId: 'companyId',
@@ -235,28 +285,29 @@ export default {
     if (!this.gridData.length) {
       this.$store.dispatch('GetGysList')
     }
+    this.setOrderType()
   },
   mounted() {
     this.$nextTick(() => {
-      if (!this.activated) {
-        this.getListData()
-      }
+      this.getListData()
     })
-  },
-  activated() {
-    this.activated = true
-    this.planform = self.planform
-    this.list = self.list
-    this.pagesize = self.pagesize
-    this.pageindex = self.pageindex
-    this.total = self.total
-    this.currentPage = self.currentPage
-  },
-  deactivated() {
-    self = Object.assign({}, this)
   },
   methods: {
     printUrl,
+    parseTime,
+    setOrderType() {
+      // 订单类型（1.代办计划单，2.已过期计划单，3.已作废计划单）
+      if (this.$route.name === 'planorderlist') {
+        this.planform.enquiryOrder.ordertype = 1
+        this.postform.ordertype = 1
+      } else if (this.$route.name === 'overdueplanorderlist') {
+        this.planform.enquiryOrder.ordertype = 2
+        this.postform.ordertype = 2
+      } else if (this.$route.name === 'invalidplanorderlist') {
+        this.planform.enquiryOrder.ordertype = 3
+        this.postform.ordertype = 3
+      }
+    },
     handleSizeChange(val) {
       this.pagesize = val
       this.getListData()
@@ -271,6 +322,9 @@ export default {
         postData.enquirystartsdate = parseTime(postData.postenquirydate[0])
         postData.enquiryendsdate = parseTime(postData.postenquirydate[1])
         postData.enquirydate = ''
+      }
+      if (postData.createdate && typeof (postData.createdate) === 'object') {
+        postData.createdate = this.parseTime(postData.createdate, '{y}-{m}-{d}')
       }
       this.loading = true
       List({ pagesize: this.pagesize, pageindex: this.pageindex, ...postData }).then(res => {
@@ -305,6 +359,7 @@ export default {
       }
       this.pagesize = 10
       this.pageindex = 1
+      this.setOrderType()
     }
   }
 }

@@ -86,14 +86,14 @@
       </template>
     </el-table-column>
     <el-table-column
-      label="供应商联系人"
+      label="收货人"
       width="160">
       <template slot-scope="scope">
         <span >{{ scope.row.linkusername }}</span>
       </template>
     </el-table-column>
     <el-table-column
-      label="供应商电话"
+      label="收货人电话"
       width="160">
       <template slot-scope="scope">
         <span>{{ scope.row.linktel }}</span>

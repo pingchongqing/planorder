@@ -73,6 +73,24 @@
             <el-input type="text" :value="planform.payment.status|statusFilter" disabled></el-input>
           </el-form-item>
         </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="备注" prop="payment.memos">
+              <el-input type="text" v-model="planform.payment.memos" disabled></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="付款日期" prop="payment.paydate">
+              <el-input type="text"  :value="planform.payment.paydate" disabled></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="关联采购单号" prop="payment.purchorder">
+              <el-input type="text"  :value="planform.payment.purchorder" disabled></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item label="制单人" prop="payment.createuser">
@@ -90,20 +108,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-form-item label="备注" prop="payment.memos">
-            <el-input type="text" v-model="planform.payment.memos" disabled></el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="付款日期" prop="payment.paydate">
-            <el-input type="text"  :value="planform.payment.paydate" disabled></el-input>
-          </el-form-item>
-        </el-col>
-      </el-row>
     </el-form>
   </div>
 </template>

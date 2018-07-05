@@ -353,9 +353,7 @@ export default {
     },
     async getOutputInvoiceDetail() {
       await getApplyMainDetail({
-        OutputInvoice: {
-          ticketno: this.$route.params.ticketno
-        }
+        ticketno: this.$route.params.ticketno
       }).then(res => {
         console.log(res)
         this.planform.OutputInvoice = res.data.data[0]

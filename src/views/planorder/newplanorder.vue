@@ -8,10 +8,11 @@
             v-model="planform.enquiryOrder.customer"
             filterable
             clearable
+            style="min-width: 220px;"
             @change="customerChange"
             placeholder="请搜索或选择" prefix-icon="el-icon-search" size="100%">
             <el-option
-              v-for="item in gridData"
+              v-for="item in customerList"
               :key="item.id"
               :label="item.name"
               :value="item.requestid">
@@ -21,9 +22,9 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="报价方" prop="enquiryOrder.enterprise">
-          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" size="100%" prefix-icon="el-icon-search">
+          <el-select v-model="planform.enquiryOrder.enterprise" filterable clearable placeholder="请搜索或选择" style="min-width: 220px;" prefix-icon="el-icon-search">
             <el-option
-              v-for="item in gridData"
+              v-for="item in enterpriseList"
               :key="item.id"
               :label="item.name"
               :value="item.requestid">
@@ -57,12 +58,12 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="数量合计">
-          <el-input :value="sumordernum" :disabled="true" ></el-input>
+          <el-input :value="sumordernum" :disabled="true" style="width: 220px;" ></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="付款方式" prop="enquiryOrder.paymethod">
-          <el-select v-model="planform.enquiryOrder.paymethod" placeholder="请选择">
+          <el-select v-model="planform.enquiryOrder.paymethod" style="min-width: 220px;" placeholder="请选择">
             <el-option
               v-for="item in paymethod"
               :key="item.value"
@@ -70,6 +71,42 @@
               :value="item.value">
             </el-option>
           </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="收货地址" prop="enquiryOrder.receiveaddress">
+          <el-input v-model="planform.enquiryOrder.receiveaddress"  style="width: 220px;" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="供货期">
+          <el-input v-model="planform.enquiryOrder.supplydate"  style="width: 220px;" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="8">
+        <el-form-item label="质保期" >
+          <el-input v-model="planform.enquiryOrder.warrantydate"  style="width: 220px;" ></el-input>
+        </el-form-item>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :span="8">
+        <el-form-item label="备注" >
+          <el-input v-model="planform.enquiryOrder.memos"  style="width: 220px;" ></el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="16">
+        <el-form-item label="附件">
+          <el-button
+            size="mini"
+            type="primary"
+            @click="uploadenclosure">
+            {{planform.enquiryOrder.enclosure ? '重新上传' : '上传附件'}}
+          </el-button>
+            <span>{{planform.enquiryOrder.enclosure}}</span>
+            <el-button type="text" v-show="planform.enquiryOrder.enclosure" @click="delenclosure">删除</el-button>
         </el-form-item>
       </el-col>
     </el-row>
@@ -139,6 +176,16 @@
             </template>
           </el-table-column>
           <el-table-column
+            label="客户商品编码"
+            width="120">
+            <template slot-scope="scope">
+              <template v-if="scope.row.edit">
+                <el-input class="edit-input" size="small" v-model="scope.row.custommaterialno"></el-input>
+              </template>
+              <span v-else>{{ scope.row.custommaterialno }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             label="品牌"
             width="120">
             <template slot-scope="scope">
@@ -189,26 +236,16 @@
             </template>
           </el-table-column>
           <el-table-column
-            label="质保期"
+            label="使用单位"
             width="260">
             <template slot-scope="scope">
               <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.warrantydate"></el-input>
+                <el-input class="edit-input" size="small" v-model="scope.row.department"></el-input>
               </template>
-              <span v-else>{{ scope.row.warrantydate }}</span>
+              <span v-else>{{ scope.row.department }}</span>
             </template>
           </el-table-column>
-          <el-table-column
-            label="供货期"
-            width="260">
-            <template slot-scope="scope">
-              <template v-if="scope.row.edit">
-                <el-input class="edit-input" size="small" v-model="scope.row.supplydate"></el-input>
-              </template>
-              <span v-else>{{ scope.row.supplydate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
+          <!-- <el-table-column
             label="供应商"
             width="180">
             <template slot-scope="scope">
@@ -224,7 +261,7 @@
               </template>
               <span v-else>{{ scope.row.servicername }}</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column
             label="备注"
             width="100">
@@ -264,7 +301,6 @@
       ref="upload"
       :action="uploadUrl"
       :limit="1"
-      :file-list = "fileList"
       :on-exceed="handleExceed"
       :before-upload="beforeUpload"
       :data = "uploadData"
@@ -280,11 +316,33 @@
       </div>
     </el-upload>
   </el-dialog>
+  <!-- 上传附件弹框 -->
+  <el-dialog
+    title="提示"
+    :visible.sync="enclosureVisible"
+    center
+    width="50%">
+    <el-upload
+      class="upload-demo"
+      ref="enclosureupload"
+      :action="enclosureuploadUrl"
+      :limit="1"
+      :on-exceed="handleExceed"
+      :before-upload="beforeEnUpload"
+      name="myFile"
+      :on-change="handelUploadChange"
+      :on-success="handleEnclosureUploadSuccess"
+      :auto-upload="false">
+      <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+      <el-button style="margin-left: 10px;" size="small" type="success" @click="submitEnclosureUpload" v-show="uploadButtonVisible">上传到服务器</el-button>
+      <div slot="tip" class="el-upload__tip">文件最大不能超过5M。</div>
+    </el-upload>
+  </el-dialog>
 </div>
 </template>
 
 <script>
-import { addOrUpdateenquiryOrder, CompanyTemplet } from '@/api/planorder'
+import { addOrUpdateenquiryOrder, CompanyTemplet, DetailInfo } from '@/api/planorder'
 import { mapGetters } from 'vuex'
 import { parseTime } from '@/utils'
 const defaultform = {
@@ -307,7 +365,11 @@ const defaultform = {
     customerorderno: '', // 客户订单号
     enquirydate: '', // 询价日期
     enquiryenddate: '', // 询价截止日期
-    paymethod: '' // 付款方式
+    paymethod: '', // 付款方式
+    receiveaddress: '', // 收货地址
+    supplydate: '', // 供货期
+    warrantydate: '', // 质保期
+    enclosure: '' // 附件
   },
   enquiryOrderItems: [
     // {
@@ -328,6 +390,7 @@ const defaultform = {
     //   ordernum: '', // 数量
     //   warrantydate: '', // 质保期
     //   supplydate: '', // 交货日期
+    //   department: '', // 使用部门
     //   memos: '' // 备注
     // }
   ]
@@ -345,6 +408,7 @@ export default {
     }
     return {
       planform: Object.assign({}, defaultform),
+      enclosureVisible: false,
       rules: {
         enquiryOrder: {
           customer: [
@@ -370,6 +434,7 @@ export default {
       dialogVisible: false,
       // uploadUrl: '/planapi/api/excel/enquiryOrder/export', // 上传路径
       uploadUrl: '/planapi/api/excel/equiryOrder/new/export',
+      enclosureuploadUrl: '/planapi/api/fileupload/getfile',
       fileList: [],
       uploadButtonVisible: false,
       dialogTableVisible: false,
@@ -396,6 +461,12 @@ export default {
   computed: {
     uploadData() {
       return { companyId: this.planform.enquiryOrder.customer }
+    },
+    customerList() {
+      return this.gridData.filter(d => d.purchase === 1)
+    },
+    enterpriseList() {
+      return this.gridData.filter(d => d.sale === 1)
     },
     sumordernum() {
       let total = 0
@@ -447,14 +518,41 @@ export default {
     //   })
     // }
     this.getTemplate()
-    this.planform = Object.assign({}, defaultform)
+    if (this.$route.query.id) {
+      this.getDetail()
+    } else {
+      this.planform = Object.assign({}, defaultform)
+    }
   },
   methods: {
+    getDetail() {
+      DetailInfo({ ticketno: this.$route.query.id }).then(
+        res => {
+          console.log(res)
+          this.planform = res.data
+        }
+      ).catch(err => {
+        console.log(err)
+      })
+    },
+    uploadenclosure() {
+      this.enclosureVisible = true
+    },
+    delenclosure() {
+      this.planform.enquiryOrder.enclosure = ''
+    },
     beforeUpload(file) {
       // 如果上传文件大于5M
       if (file.size > 5000 * 1000) {
         this.$message.error('上传附件不能大于5M')
-        this.$refs.upload.abort()
+        this.$refs.upload.abort(file)
+      }
+    },
+    beforeEnUpload(file) {
+      // 如果上传文件大于5M
+      if (file.size > 5000 * 1000) {
+        this.$message.error('上传附件不能大于5M')
+        this.$refs.enclosureupload.abort(file)
       }
     },
     getTemplate() {
@@ -588,8 +686,25 @@ export default {
       }
       this.$refs['upload'].clearFiles()
     },
+    handleEnclosureUploadSuccess(res, file, fileList) {
+      if (res.code === '200') {
+        this.$message.success('上传附件成功')
+        this.enclosureVisible = false
+        defaultform.enquiryOrder.enclosure = res.data
+        this.planform = Object.assign({}, defaultform)
+      } else {
+        this.$message({
+          message: res.message,
+          type: 'error'
+        })
+      }
+      this.$refs['enclosureupload'].clearFiles()
+    },
     submitUpload() {
       this.$refs.upload.submit()
+    },
+    submitEnclosureUpload() {
+      this.$refs.enclosureupload.submit()
     },
     handleClose(done) {
       this.$confirm('确认关闭？')

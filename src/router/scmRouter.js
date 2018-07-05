@@ -27,7 +27,27 @@ export default [{
       component: _import('planorder/planorderlist'),
       name: 'planorderlist',
       meta: {
-        title: '查询计划单',
+        title: '待办计划单',
+        icon: 'search',
+        roles: ['service_business', 'service_business_verify', 'service_market']
+      }
+    },
+    {
+      path: 'overdueplanorderlist',
+      component: _import('planorder/planorderlist'),
+      name: 'overdueplanorderlist',
+      meta: {
+        title: '已过期计划单',
+        icon: 'search',
+        roles: ['service_business', 'service_business_verify', 'service_market']
+      }
+    },
+    {
+      path: 'invalidplanorderlist',
+      component: _import('planorder/planorderlist'),
+      name: 'invalidplanorderlist',
+      meta: {
+        title: '已作废计划单',
         icon: 'search',
         roles: ['service_business', 'service_business_verify', 'service_market']
       }

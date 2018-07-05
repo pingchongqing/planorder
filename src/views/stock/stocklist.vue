@@ -4,7 +4,7 @@
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="仓库">
-          <el-select v-model="stockform.store" filterable clearable placeholder="请选择" prefix-icon="el-icon-search">
+          <el-select v-model="stockform.store" filterable clearable placeholder="请选择" style="width:220px;" prefix-icon="el-icon-search">
             <el-option
               v-for="item in revstoreList"
               :key="item.id"
@@ -16,24 +16,24 @@
       </el-col>
       <el-col :span="8">
         <el-form-item label="客户商品编号" >
-          <el-input type="text" v-model="stockform.custommaterialno" ></el-input>
+          <el-input type="text" v-model="stockform.custommaterialno" placeholder="请输入客户商品编号" style="width:220px;"></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="商品名称">
-          <el-input type="text" v-model="stockform.materialname" ></el-input>
+          <el-input type="text" v-model="stockform.materialname" placeholder="请输入商品名称" style="width:220px;"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
         <el-form-item label="规格">
-          <el-input type="text" v-model="stockform.materialrule" ></el-input>
+          <el-input type="text" v-model="stockform.materialrule" placeholder="请输入规格" style="width:220px;"></el-input>
         </el-form-item>
       </el-col>
       <el-col :span="8">
         <el-form-item label="型号">
-          <el-input type="text" v-model="stockform.materialsize" ></el-input>
+          <el-input type="text" v-model="stockform.materialsize"  placeholder="请输入型号" style="width:220px;"></el-input>
         </el-form-item>
       </el-col>
     </el-row>
@@ -156,10 +156,7 @@ export default {
       })
     },
     onCancel() {
-      this.planform = {
-        saleOrder: {},
-        saleOrderItems: []
-      }
+      this.stockform = {}
     }
   }
 }

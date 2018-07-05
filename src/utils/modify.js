@@ -101,5 +101,36 @@ export default function Modify(type, name, needfresh) {
         message: '已取消删除'
       })
     })
+  } else if (type === 4) {
+    this.$confirm('是否确定作废?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }).then(() => {
+      OrderOperate({
+        ticketNo: this.$route.params.ticketno,
+        checkFlag: type,
+        checkUser: this.userInfo.truename
+      }).then(res => {
+        console.log(res)
+        this.planform[name].status = 2
+        this.planform = JSON.parse(JSON.stringify(this.planform))
+        this.$message({
+          type: 'success',
+          message: '作废成功!'
+        })
+      }).catch(err => {
+        console.log(err)
+        this.$message({
+          type: 'error',
+          message: '作废失败'
+        })
+      })
+    }).catch(() => {
+      this.$message({
+        type: 'info',
+        message: '已取消作废'
+      })
+    })
   }
 }

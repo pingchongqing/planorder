@@ -519,7 +519,7 @@ export default {
     },
     onCancel() {
       searchForm = {
-        postinstoredate: [], // 入库时间
+        postinstoredate: null, // 入库时间
         servicer: null, // 供应商
         servicername: null,
         contractNo: null, // 合同编号
@@ -610,7 +610,7 @@ export default {
               inputInvoiceItems: []
             }
             searchForm = {
-              postinstoredate: [], // 入库时间
+              postinstoredate: null, // 入库时间
               servicer: null, // 供应商
               servicername: null,
               contractNo: null, // 合同编号

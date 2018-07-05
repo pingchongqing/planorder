@@ -1,6 +1,27 @@
 <template lang="html">
   <div class="createPost-container">
-    <el-form  class="form-container" :model="inputInvoiceDetail" ref="postForm">
+    <sticky :className="'sub-navbar published'" >
+      <template v-if="fetchSuccess">
+
+        <template v-if="planform.inputInvoice.status == -1 || planform.inputInvoice.status == -2">
+          <el-button  style="margin-left: 10px;" type="warning"  @click="Modify(3, 'inputInvoice')">删除</el-button>
+          <!-- <el-button  style="margin-left: 10px;" type="primary"  @click="Edit">修改</el-button> -->
+        </template>
+        <template v-else-if="planform.inputInvoice.status == 0">
+          <el-button  style="margin-left: 10px;" type="primary"  @click="Modify(0, 'inputInvoice')">审核</el-button>
+          <el-button  style="margin-left: 10px;" type="error"  @click="Modify(1, 'inputInvoice')">驳回</el-button>
+        </template>
+        <template v-else>
+          <el-tag >暂无操作</el-tag>
+        </template>
+
+      </template>
+      <template v-else>
+        <el-tag>发送异常错误,刷新页面,或者联系程序员</el-tag>
+      </template>
+
+    </sticky>
+    <el-form  class="form-container" :model="planform" ref="postForm">
       <div class="createPost-main-container">
         <el-row>
           <el-col :span="21">
@@ -9,69 +30,69 @@
               <el-row>
                 <el-col :span="8">
                   <el-form-item label-width="110px" label="开票单号:" class="postInfo-container-item">
-                    {{inputInvoiceDetail.inputInvoice.ticketno}}
+                    {{planform.inputInvoice.ticketno}}
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="服务商:" class="postInfo-container-item">
-                    {{inputInvoiceDetail.inputInvoice.servicername}}
+                    {{planform.inputInvoice.servicername}}
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="开票日期:" class="postInfo-container-item">
-                    {{inputInvoiceDetail.inputInvoice.invoicedate}}
+                    {{planform.inputInvoice.invoicedate}}
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
                 <el-col :span="8">
                   <el-form-item label-width="110px" label="发票号码:" class="postInfo-container-item">
-                    {{inputInvoiceDetail.inputInvoice.invoiceno}}
+                    {{planform.inputInvoice.invoiceno}}
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="单据状态:" class="postInfo-container-item">
-                    {{inputInvoiceDetail.inputInvoice.status|statusFilter}}
+                    {{planform.inputInvoice.status|statusFilter}}
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="税前金额:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.pretaxamount}}
+                    ￥{{planform.inputInvoice.pretaxamount}}
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
                 <el-col :span="8">
                   <el-form-item label-width="110px" label="税额:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.taxamount}}
+                    ￥{{planform.inputInvoice.taxamount}}
                   </el-form-item>
                 </el-col>
 
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="实际开票金额:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.invoiceamount}}
+                    ￥{{planform.inputInvoice.invoiceamount}}
                   </el-form-item>
                 </el-col>
                 <el-col :span="8">
                   <el-form-item label-width="120px" label="计划开票金额:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.planinvoiceamount}}
+                    ￥{{planform.inputInvoice.planinvoiceamount}}
                   </el-form-item>
                 </el-col>
               </el-row>
               <el-row>
-                <el-col :span="8" v-show="inputInvoiceDetail.inputInvoice.checkuser">
+                <el-col :span="8" v-show="planform.inputInvoice.checkuser">
                   <el-form-item label-width="110px" label="审核人:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.checkuser}}
+                    ￥{{planform.inputInvoice.checkuser}}
                   </el-form-item>
                 </el-col>
 
-                <el-col :span="8" v-show="inputInvoiceDetail.inputInvoice.checkdate">
+                <el-col :span="8" v-show="planform.inputInvoice.checkdate">
                   <el-form-item label-width="80px" label="审核日期:" class="postInfo-container-item">
-                    ￥{{inputInvoiceDetail.inputInvoice.checkdate}}
+                    ￥{{planform.inputInvoice.checkdate}}
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -81,7 +102,7 @@
         </el-row>
         <el-form-item style="margin-bottom: 40px;" label-width="0">
           <el-table
-            :data="inputInvoiceDetail.inputInvoiceItems"
+            :data="planform.inputInvoiceItems"
             ref="inputInvoiceTable"
             style="width: 100%"
             border
@@ -193,37 +214,53 @@
 
 <script>
 import { getItemDetail, getMainDetail } from '@/api/invoice'
+import Modify from '@/utils/modify'
+import Sticky from '@/components/Sticky' // 粘性header组件
+import { mapGetters } from 'vuex'
 export default {
+  components: {
+    Sticky
+  },
   data() {
     return {
-      inputInvoiceDetail: {
+      planform: {
         inputInvoice: {},
         inputInvoiceItems: []
-      }
+      },
+      fetchSuccess: true
     }
+  },
+  computed: {
+    ...mapGetters({
+      company: 'company',
+      companyId: 'companyId',
+      userInfo: 'userInfo',
+      visitedViews: 'visitedViews'
+    })
   },
   created() {
     this.getInputInvoiceDetail()
   },
   methods: {
+    Modify,
     async getInputInvoiceDetail() {
       await getMainDetail({
-        inputInvoice: {
-          ticketno: this.$route.params.ticketno
-        }
+        ticketno: this.$route.params.ticketno
       }).then(res => {
         console.log(res)
-        this.inputInvoiceDetail.inputInvoice = res.data.data[0]
+        this.planform.inputInvoice = res.data.data[0]
       }).catch(err => {
         console.log(err)
+        this.fetchSuccess = false
       })
       await getItemDetail({
         ticketno: this.$route.params.ticketno
       }).then(res => {
         console.log(res)
-        this.inputInvoiceDetail.inputInvoiceItems = res.data
+        this.planform.inputInvoiceItems = res.data
       }).catch(err => {
         console.log(err)
+        this.fetchSuccess = false
       })
     }
   }

@@ -496,7 +496,7 @@ export default {
     },
     onCancel() {
       OutputInvoiceSearchForm = {
-        postoutstoredate: [], // 入库时间
+        postoutstoredate: null, // 入库时间
         customer: '', // 客户
         customername: '',
         contractNo: null, // 合同编号
@@ -587,7 +587,7 @@ export default {
               outputInvoiceItems: []
             }
             OutputInvoiceSearchForm = {
-              postoutstoredate: [], // 入库时间
+              postoutstoredate: null, // 入库时间
               customer: null, // 供应商
               customername: null,
               contractNo: null, // 合同编号

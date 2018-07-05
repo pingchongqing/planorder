@@ -149,14 +149,7 @@
             label="质保期"
             width="250">
             <template slot-scope="scope">
-              <el-date-picker
-                v-model="scope.row.warrantydate"
-                type="date"
-                v-if="scope.row.edit"
-                :editable="false"
-                placeholder="选择日期"
-                align="right">
-              </el-date-picker>
+              <el-input v-if="scope.row.edit" v-model="scope.row.warrantydate" ></el-input>
               <span v-else>{{ scope.row.warrantydate }}</span>
             </template>
           </el-table-column>
@@ -164,14 +157,7 @@
             label="供货期"
             width="250">
             <template slot-scope="scope">
-              <el-date-picker
-                v-model="scope.row.supplydate"
-                type="date"
-                v-if="scope.row.edit"
-                :editable="false"
-                placeholder="选择日期"
-                align="right">
-              </el-date-picker>
+              <el-input v-if="scope.row.edit" v-model="scope.row.supplydate" ></el-input>
               <span v-else>{{ scope.row.supplydate }}</span>
             </template>
           </el-table-column>
@@ -220,6 +206,7 @@
           </el-table-column>
         </el-table>
       </el-form-item>
+      <!-- <div style="float:right;margin-right:200px;">总金额：{{sumamount}}</div> -->
     </div>
     <el-form-item label-width="0">
       <el-button type="primary" @click="onSubmit" v-loading="submitloading">{{$route.query.id ? '修改报价单' : '提交报价单'}}</el-button>
@@ -319,16 +306,17 @@ export default {
       currentRow: {},
       multipleSelection: [],
       submitloading: false,
-      enquiryData: []
+      enquiryData: [],
+      totalamount: 0
     }
   },
   computed: {
     sumamount() {
       let total = 0
       this.planform.quotationItems.forEach(item => {
-        total += parseInt(item.price * 100) / 100
+        total += item.price * item.ordernum
       })
-      return total
+      return total.toFixed(2)
     },
     sumordernum() {
       let total = 0
@@ -543,12 +531,6 @@ export default {
     },
     editRow(row) {
       row.edit = false
-      if (row.warrantydate) {
-        row.warrantydate = parseTime(new Date(row.warrantydate), '{y}-{m}-{d}')
-      }
-      if (row.supplydate) {
-        row.supplydate = parseTime(new Date(row.supplydate), '{y}-{m}-{d}')
-      }
       row.servicername = this.getservicename(row.servicer)
     },
     goeditrow(index) {

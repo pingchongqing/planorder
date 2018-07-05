@@ -27,7 +27,7 @@
     </el-row>
     <el-row :gutter="20">
       <el-col :span="8">
-        <el-form-item label="收货人" prop="purchorder.linkusername">
+        <el-form-item label="联系人" prop="purchorder.linkusername">
           <el-input type="text" v-model="planform.purchorder.linkusername" ></el-input>
         </el-form-item>
       </el-col>
